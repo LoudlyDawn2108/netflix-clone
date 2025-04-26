@@ -1,0 +1,88 @@
+flowchart LR
+  %% Frontend
+  subgraph Frontend
+    direction TB
+    UI[Web / Mobile / TV App]
+    UI -->|HTTPS Calls| APIGW[API Gateway]
+    UI -->|Fetch segments| CDN[CDN Edge]
+  end
+
+  %% API Layer
+  subgraph "API & Edge Layer"
+    direction LR
+    APIGW --> AuthSvc[Authentication Service]
+    APIGW --> ProfileSvc[User / Profile Service]
+    APIGW --> CatalogSvc[Video Metadata Service]
+    APIGW --> SearchSvc[Search Service]
+    APIGW --> RecSvc[Recommendation Service]
+    APIGW --> PlaybackSvc[Playback & DRM License Service]
+    APIGW --> BillingSvc[Billing & Subscription Service]
+  end
+
+  %% Asynchronous Event Bus
+  subgraph "Event Bus"
+    EVBus[(Kafka / Kinesis / EventBridge)]
+  end
+
+  %% Background Workers
+  subgraph "Background Processing"
+    Transcoder[Transcoding Service]
+    AnalyticsSvc[Analytics / Logging Service]
+  end
+
+  %% Data Stores
+  subgraph "Data & Cache"
+    direction LR
+    PostgresUsers[(PostgreSQL Users DB)]
+    PostgresVideo[(PostgreSQL Catalog DB)]
+    Redis[(Redis Cache / Session Store)]
+    Elasticsearch[(Elasticsearch / OpenSearch)]
+    DataLake[(ClickHouse / BigQuery)]
+  end
+
+  %% Object Storage & CDN
+  subgraph "Storage & Delivery"
+    direction LR
+    S3Master[(S3 Master Bucket)]
+    S3Rends[(S3 Renditions Bucket)]
+    CDN
+  end
+
+  %% Synchronous service↔data flows
+  AuthSvc --> PostgresUsers
+  ProfileSvc --> PostgresUsers
+  ProfileSvc --> Redis
+  CatalogSvc --> PostgresVideo
+  CatalogSvc --> S3Master
+  SearchSvc --> Elasticsearch
+  RecSvc --> PostgresVideo
+  RecSvc --> PostgresUsers
+  PlaybackSvc --> Redis
+  BillingSvc --> Stripe["Stripe\nPayment Gateway"]
+
+  %% Event-driven flows
+  CatalogSvc -->|VideoUploaded event| EVBus
+  EVBus --> Transcoder
+  Transcoder -->|VideoTranscoded event| EVBus
+  EVBus --> SearchSvc
+  EVBus --> AnalyticsSvc
+  EVBus --> RecSvc
+
+  %% Transcoding & storage
+  S3Master --> Transcoder
+  Transcoder --> S3Rends
+  S3Rends --> CDN
+
+  %% Playback & analytics
+  PlaybackSvc -->|Generate signed URLs| CDN
+  UI -->|Stream segments| CDN
+  AnalyticsSvc --> DataLake
+
+  %% External infra (not expanded)
+  subgraph "CI/CD & Infra"
+    GitHubActions[GitHub Actions CI/CD]
+    Terraform["IaC (Terraform/CloudFormation)"]
+    DockerK8s[Docker → Kubernetes / ECS]
+  end
+  GitHubActions --- DockerK8s
+  Terraform --- DockerK8s
