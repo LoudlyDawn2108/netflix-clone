@@ -13,10 +13,10 @@
 
 ### 2. Tech Stack & Tooling
 
--   Framework: React 18, TypeScript
+-   Framework: React 18, Javascript with JSDocs and type.ts file
 -   Bundler: Vite
--   Styling: CSS Modules / Tailwind CSS (optional)
--   HTTP client: Axios or Fetch with central service layer
+-   Styling: Tailwind CSS
+-   HTTP client: Fetch with central service layer
 -   Linter & formatting: ESLint, Prettier
 -   Testing: Jest + React Testing Library
 -   CI/CD: GitHub Actions for lint, build, test, deploy
