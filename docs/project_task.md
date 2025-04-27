@@ -164,8 +164,8 @@ Labels / Epics:
 
 ### Sprint 1 (Weeks 1–2)
 
--   [ ] Create high-level system architecture diagram (Epic: Architecture & Design)
--   [ ] Define microservice boundaries & data flow (Epic: Architecture & Design)
+-   [x] Create high-level system architecture diagram (Epic: Architecture & Design)
+-   [x] Define microservice boundaries & data flow (Epic: Architecture & Design)
 -   [ ] Define security, compliance, and DR strategy (Epic: Architecture & Design)
 -   [ ] Draft backup & recovery procedures (Epic: Architecture & Design)
 -   [ ] Define cloud infrastructure architecture diagram (Epic: Infrastructure)
