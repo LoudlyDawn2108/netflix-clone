@@ -1,0 +1,62 @@
+architecture-beta
+  %% Clients
+  group clients(internet)[Clients]
+  service webApp(internet)[Web App] in clients
+  service mobileApp(internet)[Mobile App] in clients
+
+  %% CDN
+  service cdn(disk)[CDN]
+  webApp:R -- L:cdn
+  mobileApp:B -- T:cdn
+
+  %% API Gateway
+  service gateway(cloud)[API Gateway]
+  cdn:R -- L:gateway
+
+  %% Microservices
+  group microservices(server)[Microservices]
+  service authService(server)[Auth Service] in microservices
+  service profileService(server)[Profile Service] in microservices
+  service videoMgmtService(server)[Video Mgmt Service] in microservices
+  service transcodingService(server)[Transcoding Service] in microservices
+  service catalogService(server)[Catalog Service] in microservices
+  service playbackService(server)[Playback Service] in microservices
+  service recService(server)[Rec Service] in microservices
+  service analyticsService(server)[Analytics Service] in microservices
+  service billingService(server)[Billing Service] in microservices
+  service eventBus(server)[Event Bus] in microservices
+
+  gateway:R -- L:authService
+  gateway:R -- L:profileService
+  gateway:R -- L:catalogService
+  gateway:R -- L:playbackService
+  gateway:R -- L:billingService
+
+  videoMgmtService:R -- L:eventBus
+  transcodingService:B -- T:eventBus
+  eventBus:R -- L:catalogService
+  eventBus:R -- L:analyticsService
+  eventBus:R -- L:recService
+
+  %% Data Stores
+  group storage(database)[Storage]
+  service postgres(database)[PostgreSQL] in storage
+  service redis(database)[Redis] in storage
+  service elasticSearch(database)[Elasticsearch] in storage
+  service s3(disk)[S3] in storage
+  service clickhouse(database)[ClickHouse] in storage
+
+  authService:R -- L:postgres
+  profileService:R -- L:postgres
+  profileService:B -- T:redis
+  videoMgmtService:R -- L:postgres
+  videoMgmtService:B -- T:s3
+  transcodingService:B -- T:s3
+  catalogService:R -- L:elasticSearch
+  analyticsService:R -- L:clickhouse
+
+  %% Observability
+  service prometheus(database)[Prometheus]
+  service grafana(server)[Grafana]
+  eventBus:R -- L:prometheus
+  prometheus:R -- L:grafana

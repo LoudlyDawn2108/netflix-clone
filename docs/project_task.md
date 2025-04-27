@@ -168,7 +168,7 @@ Labels / Epics:
 -   [x] Define microservice boundaries & data flow (Epic: Architecture & Design)
 -   [ ] Define security, compliance, and DR strategy (Epic: Architecture & Design)
 -   [ ] Draft backup & recovery procedures (Epic: Architecture & Design)
--   [ ] Define cloud infrastructure architecture diagram (Epic: Infrastructure)
+-   [x] Define cloud infrastructure architecture diagram (Epic: Infrastructure)
 -   [ ] Containerize services with Docker (Epic: Infrastructure)
 -   [ ] Automate IaC with Terraform (Epic: Infrastructure)
 -   [ ] Write Kubernetes manifests & Helm charts (Epic: Infrastructure)
