@@ -1,0 +1,143 @@
+/* Responsive utilities for Netflix clone */
+
+/* Hide elements based on breakpoints */
+.hide-xs {
+    @media (max-width: 479px) {
+        display: none !important;
+    }
+}
+
+.hide-sm {
+    @media (max-width: 639px) {
+        display: none !important;
+    }
+}
+
+.hide-md {
+    @media (max-width: 767px) {
+        display: none !important;
+    }
+}
+
+.hide-lg {
+    @media (max-width: 1023px) {
+        display: none !important;
+    }
+}
+
+.hide-xl {
+    @media (max-width: 1279px) {
+        display: none !important;
+    }
+}
+
+/* Only show elements at specific breakpoints */
+.show-xs-only {
+    @media (min-width: 480px) {
+        display: none !important;
+    }
+}
+
+.show-sm-only {
+    @media (max-width: 479px), (min-width: 768px) {
+        display: none !important;
+    }
+}
+
+.show-md-only {
+    @media (max-width: 767px), (min-width: 1024px) {
+        display: none !important;
+    }
+}
+
+.show-lg-only {
+    @media (max-width: 1023px), (min-width: 1280px) {
+        display: none !important;
+    }
+}
+
+.show-xl-only {
+    @media (max-width: 1279px) {
+        display: none !important;
+    }
+}
+
+/* Responsive container classes */
+.container-fluid {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.container-sm {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 640px;
+}
+
+.container-md {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 768px;
+}
+
+.container-lg {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 1024px;
+}
+
+.container-xl {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 1280px;
+}
+
+/* Responsive spacing utility classes */
+.responsive-spacing {
+    padding: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    .responsive-spacing {
+        padding: 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .responsive-spacing {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .responsive-spacing {
+        padding: 2rem;
+    }
+}
+
+/* Responsive flex utilities */
+.flex-responsive {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .flex-responsive {
+        flex-direction: row;
+    }
+}
