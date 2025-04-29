@@ -12,7 +12,7 @@ export const categories = [
 ];
 
 // Base array of mock videos
-const baseVideos = [
+export const baseVideos = [
     {
         id: "v1",
         title: "Cosmic Odyssey",

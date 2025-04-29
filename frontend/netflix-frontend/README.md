@@ -4,22 +4,22 @@
 
 ### 1. Architecture Overview
 
--   Single Page Application (SPA) built with React 18 and Vite
--   Communicates with API Gateway over HTTPS (REST)
--   Modular structure: pages, components, services, hooks, assets
--   Client-side routing via React Router v6
--   State management using React Context + Redux Toolkit for global data
--   Code splitting and lazy loading for performance
+- Single Page Application (SPA) built with React 18 and Vite
+- Communicates with API Gateway over HTTPS (REST)
+- Modular structure: pages, components, services, hooks, assets
+- Client-side routing via React Router v6
+- State management using React Context + Redux Toolkit for global data
+- Code splitting and lazy loading for performance
 
 ### 2. Tech Stack & Tooling
 
--   Framework: React 18, Javascript with JSDocs and type.ts file
--   Bundler: Vite
--   Styling: Tailwind CSS
--   HTTP client: Fetch with central service layer
--   Linter & formatting: ESLint, Prettier
--   Testing: Jest + React Testing Library
--   CI/CD: GitHub Actions for lint, build, test, deploy
+- Framework: React 18, Javascript with JSDocs for type annotation
+- Bundler: Vite
+- Styling: Tailwind CSS
+- HTTP client: Fetch with central service layer
+- Linter & formatting: ESLint, Prettier
+- Testing: Jest + React Testing Library
+- CI/CD: GitHub Actions for lint, build, test, deploy
 
 ### 3. UI/UX Functional Areas
 
@@ -39,81 +39,81 @@ _All calls via API Gateway (`/api/v1/...`), attach JWT in `Authorization: Bearer
 
 #### 4.1 Authentication
 
--   POST `/auth/signup`, `/auth/login`, `/auth/refresh`, `/auth/logout`
--   GET `/auth/me` to initialize user context
+- POST `/auth/signup`, `/auth/login`, `/auth/refresh`, `/auth/logout`
+- GET `/auth/me` to initialize user context
 
 #### 4.2 Profile & Watchlist
 
--   GET/PUT `/profiles/{userId}`
--   GET/POST/DELETE `/profiles/{userId}/watchlist`
--   GET/POST `/profiles/{userId}/history`
--   GET/POST `/profiles/{userId}/ratings`
+- GET/PUT `/profiles/{userId}`
+- GET/POST/DELETE `/profiles/{userId}/watchlist`
+- GET/POST `/profiles/{userId}/history`
+- GET/POST `/profiles/{userId}/ratings`
 
 #### 4.3 Content & Search
 
--   GET `/videos?page&limit&filter`
--   GET `/videos/{id}`
--   GET `/search?q&genre&year&page&limit`
--   GET `/videos/{id}/related`
+- GET `/videos?page&limit&filter`
+- GET `/videos/{id}`
+- GET `/search?q&genre&year&page&limit`
+- GET `/videos/{id}/related`
 
 #### 4.4 Playback & DRM
 
--   GET `/playback/{videoId}/manifest?token=JWT`
--   POST `/drm/license`
+- GET `/playback/{videoId}/manifest?token=JWT`
+- POST `/drm/license`
 
 #### 4.5 Recommendations
 
--   GET `/recs/{userId}?limit`
+- GET `/recs/{userId}?limit`
 
 #### 4.6 Billing & Subscription
 
--   POST `/subscriptions`
--   GET `/subscriptions/{userId}`
--   POST `/subscriptions/{id}/cancel`
--   GET `/plans`
+- POST `/subscriptions`
+- GET `/subscriptions/{userId}`
+- POST `/subscriptions/{id}/cancel`
+- GET `/plans`
 
 #### 4.7 Analytics Events
 
--   POST `/events` batch of events: page view, play start/stop, rating, search
+- POST `/events` batch of events: page view, play start/stop, rating, search
 
 ### 5. State & Data Management
 
--   Local: sessionStorage for tokens, IndexedDB for PWA offline cache
--   Global: Redux for user, playback state, recommendations
--   Memoization with React Query or SWR for API caching
+- Local: sessionStorage for tokens, IndexedDB for PWA offline cache
+- Global: Redux for user, playback state, recommendations
+- Memoization with React Query or SWR for API caching
 
 ### 6. Security & Compliance
 
--   Store JWT in memory or secure cookie (HttpOnly)
--   CSRF protection on state-changing calls
--   Input validation on forms
--   CSP, XSS hardening
+- Store JWT in memory or secure cookie (HttpOnly)
+- CSRF protection on state-changing calls
+- Input validation on forms
+- CSP, XSS hardening
 
 ### 7. Non‑Functional Requirements
 
--   PWA support: offline shell, service worker caching
--   Responsive design: mobile, tablet, desktop
--   Accessibility: WCAG 2.1 AA compliance
--   Performance budgets: TTI < 3s, Lighthouse score > 90
+- PWA support: offline shell, service worker caching
+- Responsive design: mobile, tablet, desktop
+- Accessibility: WCAG 2.1 AA compliance
+- Performance budgets: TTI < 3s, Lighthouse score > 90
 
 ### 8. Observability & Monitoring
 
--   Client‑side logging to Sentry or LogRocket
--   Metrics: page load time, API error rates
--   User event tracking sent to Analytics Service
+- Client‑side logging to Sentry or LogRocket
+- Metrics: page load time, API error rates
+- User event tracking sent to Analytics Service
 
 ### 9. CI/CD & Deployment
 
--   Build: `npm run build` in CI
--   Deploy static assets to CDN (S3 + CloudFront)
--   Invalidate cache on new release
--   Canary deploy via feature flags (optional)
+- Build: `npm run build` in CI
+- Deploy static assets to CDN (S3 + CloudFront)
+- Invalidate cache on new release
+- Canary deploy via feature flags (optional)
 
 ### 10. Testing & Quality
 
--   Unit tests for components and hooks
--   Integration tests for API services with MSW (Mock Service Worker)
--   E2E tests with Playwright or Cypress
+- Unit tests for components and hooks
+- Integration tests for API services with MSW (Mock Service Worker)
+- E2E tests with Playwright or Cypress
 
 ---
 

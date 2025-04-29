@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import ResponsiveContainer from "../ui/ResponsiveContainer";
 import ResponsiveText from "../ui/ResponsiveText";
+import VersionInfo from "../ui/VersionInfo";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -253,7 +254,7 @@ export default function Footer() {
                 {/* Language Selector */}
                 <div className="border-t border-gray-800 pt-8 pb-4">
                     <div className="flex flex-col sm:flex-row items-center justify-between">
-                        <div className="mb-4 sm:mb-0">
+                        <div className="mb-4 sm:mb-0 flex items-center gap-6">
                             <div className="flex items-center">
                                 <svg
                                     className="w-5 h-5 mr-2"
@@ -273,6 +274,8 @@ export default function Footer() {
                                     <option value="de">Deutsch</option>
                                 </select>
                             </div>
+
+                            <VersionInfo className="ml-4" />
                         </div>
 
                         <ResponsiveText variant="caption" as="p">

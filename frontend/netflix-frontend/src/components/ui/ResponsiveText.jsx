@@ -1,9 +1,15 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 /**
  * ResponsiveText - A component for responsive typography
  * Automatically adjusts font sizes based on screen size
+ *
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - The content to be rendered inside the text component
+ * @param {string} [props.className=""] - Additional CSS classes to apply
+ * @param {'h1'|'h2'|'h3'|'h4'|'h5'|'subtitle'|'body'|'body-large'|'caption'|'button'} [props.variant="body"] - Typography style variant
+ * @param {React.ElementType} [props.as="div"] - HTML element or component to render as
+ * @returns {JSX.Element} Responsive text component
  */
 export default function ResponsiveText({
     children,
@@ -35,21 +41,3 @@ export default function ResponsiveText({
         </Component>
     );
 }
-
-ResponsiveText.propTypes = {
-    children: PropTypes.node,
-    className: PropTypes.string,
-    variant: PropTypes.oneOf([
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "subtitle",
-        "body",
-        "body-large",
-        "caption",
-        "button",
-    ]),
-    as: PropTypes.elementType,
-};

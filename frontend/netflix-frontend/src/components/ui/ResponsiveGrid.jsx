@@ -1,9 +1,22 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 /**
  * ResponsiveGrid - A grid component that adapts to screen sizes
  * Provides a responsive grid layout that changes columns based on viewport width
+ *
+ * @typedef {Object} GridColumns
+ * @property {number} [xs] - Number of columns on extra small screens
+ * @property {number} [sm] - Number of columns on small screens
+ * @property {number} [md] - Number of columns on medium screens
+ * @property {number} [lg] - Number of columns on large screens
+ * @property {number} [xl] - Number of columns on extra large screens
+ *
+ * @param {Object} props - The component props
+ * @param {React.ReactNode} [props.children] - The grid items
+ * @param {string} [props.className=""] - Additional CSS classes
+ * @param {string} [props.gap="gap-4 md:gap-6"] - Gap between grid items
+ * @param {GridColumns} [props.cols] - Responsive column configuration
+ * @returns {JSX.Element} Responsive grid component
  */
 export default function ResponsiveGrid({
     children,
@@ -32,16 +45,3 @@ export default function ResponsiveGrid({
         <div className={`grid ${gridCols} ${gap} ${className}`}>{children}</div>
     );
 }
-
-ResponsiveGrid.propTypes = {
-    children: PropTypes.node,
-    className: PropTypes.string,
-    gap: PropTypes.string,
-    cols: PropTypes.shape({
-        xs: PropTypes.number,
-        sm: PropTypes.number,
-        md: PropTypes.number,
-        lg: PropTypes.number,
-        xl: PropTypes.number,
-    }),
-};

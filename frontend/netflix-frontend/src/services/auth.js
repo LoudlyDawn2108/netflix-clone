@@ -17,6 +17,19 @@ export async function login(email, password) {
     return data;
 }
 
+export async function verifyToken(token) {
+    try {
+        const userData = await api("/auth/verify", {
+            method: "POST",
+            body: { token },
+        });
+        return userData;
+    } catch (error) {
+        console.error("Token verification failed:", error);
+        return null;
+    }
+}
+
 export async function refreshToken() {
     const refreshToken = sessionStorage.getItem("refreshToken");
     if (!refreshToken) throw new Error("No refresh token available");
