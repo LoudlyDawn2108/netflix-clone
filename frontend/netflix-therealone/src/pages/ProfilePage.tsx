@@ -8,6 +8,15 @@ export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [profileData, setProfileData] = useState<ProfileData>({
+        name: "John Doe",
+        email: "john.doe@example.com",
+        plan: "Premium",
+        nextBillingDate: "May 15, 2025",
+        avatarUrl:
+            "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png",
+    });
+
     useEffect(() => {
         // Get current user from session storage
         const currentUser = getCurrentUser();

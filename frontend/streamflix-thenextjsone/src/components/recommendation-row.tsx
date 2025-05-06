@@ -90,7 +90,7 @@ export default function RecommendationRow({ title, subtitle, items, type }: Reco
             style={{ width: hoveredIndex === index ? "320px" : type === "because-you-watched" ? "300px" : "200px" }}
             onMouseEnter={() => setHoveredIndex(index)}
           >
-            <Link href={`/watch/${item.id}`}>
+            <Link href={`/title/${item.id}`}>
               <div className="relative aspect-video">
                 <Image src={item.thumbnailPath || "/placeholder.svg"} alt={item.title} fill className="object-cover" />
 

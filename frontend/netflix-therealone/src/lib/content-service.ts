@@ -1,316 +1,364 @@
-import { HomePageContent, VideoContent } from './types'
+import type {
+    HomePageContent,
+    VideoContent,
+    FeaturedContent,
+    ContentDetails,
+    CastMember,
+    Review,
+    Episode,
+} from "./types";
 
-// Mock data for development - in a real app, this would call an API
-const mockVideoContent: VideoContent[] = [
-  {
-    id: "1",
-    title: "Stranger Things",
-    thumbnailPath: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
-    backdropPath: "https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
-    logoPath: "https://image.tmdb.org/t/p/w500/hiuGzVlWZkwBp1QZCNj4H6hHEYM.png",
-    overview: "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces, and one strange little girl.",
-    releaseYear: 2016,
-    maturityRating: "TV-14",
-    duration: "8 Episodes",
-    genres: ["Drama", "Fantasy", "Mystery"],
-    matchPercentage: 97,
-  },
-  {
-    id: "2",
+// Mock data for the content service
+const mockFeatured: FeaturedContent = {
+    id: "tt5180504",
     title: "The Witcher",
-    thumbnailPath: "https://image.tmdb.org/t/p/w500/7vjaCdMw15FEbXyLQTVa04URsPm.jpg",
-    backdropPath: "https://image.tmdb.org/t/p/original/arYvUXhpNRfvvdYHdA3dlVyMUO0.jpg",
-    logoPath: "https://image.tmdb.org/t/p/w500/vargscDm4GXYpUUZwMpOcLTlEPm.png",
-    overview: "Geralt of Rivia, a mutated monster-hunter for hire, journeys toward his destiny in a turbulent world where people often prove more wicked than beasts.",
+    thumbnailPath:
+        "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
+    backdropPath:
+        "https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+    logoPath: "https://image.tmdb.org/t/p/w500/hiuGzVlWZkwBp1QZCNj4H6hHEYM.png",
+    overview:
+        "Geralt of Rivia, a solitary monster hunter, struggles to find his place in a world where people often prove more wicked than beasts.",
     releaseYear: 2019,
     maturityRating: "TV-MA",
-    duration: "2 Seasons",
-    genres: ["Action", "Adventure", "Fantasy"],
-    matchPercentage: 95,
-  },
-  {
-    id: "3",
-    title: "Wednesday",
-    thumbnailPath: "https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg",
-    backdropPath: "https://image.tmdb.org/t/p/original/iHSwvRVsRyxpX7FE7GbviaDvgGZ.jpg",
-    overview: "Wednesday Addams is sent to Nevermore Academy, a bizarre boarding school where she attempts to master her psychic powers, solve a murder mystery, and adjust to new relationships.",
-    releaseYear: 2022,
-    maturityRating: "TV-14",
-    duration: "1 Season",
-    genres: ["Comedy", "Fantasy", "Horror"],
-    matchPercentage: 93,
-  },
-  {
-    id: "4",
-    title: "Squid Game",
-    thumbnailPath: "https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg",
-    backdropPath: "https://image.tmdb.org/t/p/original/qw3J9cNeLioOLoR68WX7z79aCdK.jpg",
-    overview: "Hundreds of cash-strapped players accept a strange invitation to compete in children's games. Inside, a tempting prize awaits — with deadly high stakes.",
-    releaseYear: 2021,
-    maturityRating: "TV-MA",
-    duration: "1 Season",
-    genres: ["Action", "Drama", "Mystery"],
-    matchPercentage: 92,
-  },
-  {
-    id: "5",
-    title: "Money Heist",
-    thumbnailPath: "https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg",
-    backdropPath: "https://image.tmdb.org/t/p/original/gFZriCkpJYsApPZEF3jhxL4yLzG.jpg",
-    logoPath: "https://image.tmdb.org/t/p/w500/1qOA3kMtQO0ks4oikWTYrqfN7Jq.png",
-    overview: "To carry out the biggest heist in history, a mysterious man called The Professor recruits a band of eight robbers who have a single characteristic: none of them has anything to lose.",
-    releaseYear: 2017,
-    maturityRating: "TV-MA",
-    duration: "5 Seasons",
-    genres: ["Action", "Crime", "Drama"],
-    matchPercentage: 90,
-  },
-  {
-    id: "6",
-    title: "Black Mirror",
-    thumbnailPath: "https://image.tmdb.org/t/p/w500/7PRddO7z7mcPi2Lb3X1LvMw8xnx.jpg",
-    backdropPath: "https://image.tmdb.org/t/p/original/7RxuJxYUdTIIqGrpvuCnPTOzana.jpg",
-    overview: "A contemporary British anthology series focusing on the dark side of technology and how it affects modern society.",
-    releaseYear: 2011,
-    maturityRating: "TV-MA",
-    duration: "6 Seasons",
-    genres: ["Drama", "Sci-Fi", "Thriller"],
-    matchPercentage: 88,
-  }
-]
+    duration: "1h",
+    genres: ["Fantasy", "Action", "Adventure"],
+    matchPercentage: 97,
+};
 
-// Generate more mock content for different sections
-const createContinueWatching = () => {
-  return mockVideoContent.slice(0, 4).map(item => ({
-    ...item,
-    progress: Math.floor(Math.random() * 95)
-  }))
-}
+const generateMockVideos = (count: number, prefix: string): VideoContent[] => {
+    return Array.from({ length: count }).map((_, index) => ({
+        id: `${prefix}-${index + 1}`,
+        title: `${prefix} Title ${index + 1}`,
+        thumbnailPath: `/placeholder.svg?height=720&width=1280&text=${prefix}${
+            index + 1
+        }`,
+        backdropPath: `/placeholder.svg?height=1080&width=1920&text=${prefix}${
+            index + 1
+        }`,
+        overview: `This is a mock overview for ${prefix} ${
+            index + 1
+        }. It contains a brief description of the content.`,
+        releaseYear: 2020 + Math.floor(Math.random() * 4),
+        maturityRating: ["TV-MA", "TV-14", "PG-13", "R"][
+            Math.floor(Math.random() * 4)
+        ],
+        duration: `${Math.floor(Math.random() * 2) + 1}h ${
+            Math.floor(Math.random() * 59) + 1
+        }m`,
+        genres: [
+            ["Action", "Adventure", "Sci-Fi"],
+            ["Comedy", "Romance"],
+            ["Drama", "Thriller"],
+            ["Horror", "Mystery"],
+            ["Documentary", "Biography"],
+        ][Math.floor(Math.random() * 5)],
+        matchPercentage: Math.floor(Math.random() * 30) + 70,
+        progress:
+            prefix === "continue"
+                ? Math.floor(Math.random() * 90) + 10
+                : undefined,
+        relatedTo: prefix === "because" ? "Stranger Things" : undefined,
+    }));
+};
 
-const createMyList = () => {
-  return mockVideoContent.slice(1, 5)
-}
-
-const createTrending = () => {
-  return [...mockVideoContent].sort(() => Math.random() - 0.5)
-}
-
-const createPopular = () => {
-  return [...mockVideoContent].sort(() => Math.random() - 0.5).slice(0, 5)
-}
-
-const createNewReleases = () => {
-  return [...mockVideoContent].sort(() => Math.random() - 0.5)
-}
-
-const createBecauseYouWatched = () => {
-  const sourceContent = mockVideoContent[0]
-  return {
-    title: `Because you watched ${sourceContent.title}`,
-    items: mockVideoContent.slice(1).map(item => ({
-      ...item,
-      relatedTo: sourceContent.id
-    }))
-  }
-}
-
-const createTopPicks = () => {
-  return {
-    title: "Top Picks For You",
-    subtitle: "Based on your watching history",
-    items: [...mockVideoContent].sort(() => Math.random() - 0.5)
-  }
-}
-
-const createWatchAgain = () => {
-  return {
-    title: "Watch It Again",
-    subtitle: "Shows you might want to revisit",
-    items: [...mockVideoContent].sort(() => Math.random() - 0.5).slice(0, 4)
-  }
-}
-
-// Function to get home page content
+// Mock API call to get homepage content
 export async function getHomePageContent(): Promise<HomePageContent> {
-  // In a real application, this would make API calls to different endpoints
-  
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500))
-  
-  return {
-    featured: {
-      ...mockVideoContent[0],
-      videoId: "video-1",
-      trailerPath: "https://example.com/trailer.mp4"
-    },
-    trending: {
-      id: "trending",
-      title: "Trending Now",
-      items: createTrending()
-    },
-    popular: {
-      id: "popular",
-      title: "Popular on StreamFlix",
-      items: createPopular()
-    },
-    newReleases: {
-      id: "new-releases",
-      title: "New Releases",
-      items: createNewReleases()
-    },
-    continueWatching: {
-      id: "continue-watching",
-      title: "Continue Watching",
-      items: createContinueWatching()
-    },
-    myList: {
-      id: "my-list",
-      title: "My List",
-      items: createMyList()
-    },
-    becauseYouWatched: {
-      id: "because-you-watched",
-      ...createBecauseYouWatched()
-    },
-    topPicks: {
-      id: "top-picks",
-      ...createTopPicks()
-    },
-    watchAgain: {
-      id: "watch-again",
-      ...createWatchAgain()
-    }
-  }
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    return {
+        featured: mockFeatured,
+        trending: {
+            id: "trending",
+            title: "Trending Now",
+            items: generateMockVideos(10, "trending"),
+        },
+        popular: {
+            id: "popular",
+            title: "Popular on Netflix",
+            items: generateMockVideos(10, "popular"),
+        },
+        newReleases: {
+            id: "new",
+            title: "New Releases",
+            items: generateMockVideos(10, "new"),
+        },
+        continueWatching: {
+            id: "continue",
+            title: "Continue Watching",
+            items: generateMockVideos(5, "continue"),
+        },
+        myList: {
+            id: "mylist",
+            title: "My List",
+            items: generateMockVideos(8, "mylist"),
+        },
+        // New personalized recommendations
+        becauseYouWatched: {
+            id: "because",
+            title: "Because You Watched Stranger Things",
+            items: generateMockVideos(8, "because"),
+        },
+        topPicks: {
+            id: "picks",
+            title: "Top Picks For You",
+            subtitle: "Based on your viewing history",
+            items: generateMockVideos(10, "picks"),
+        },
+        watchAgain: {
+            id: "again",
+            title: "Watch Again",
+            subtitle: "Shows and movies you've enjoyed before",
+            items: generateMockVideos(6, "again"),
+        },
+    };
 }
 
-// In a real app, we would have more functions here to get specific content
-export async function getSearchSuggestions(query: string): Promise<string[]> {
-  // This would normally call an API
-  await new Promise(resolve => setTimeout(resolve, 300))
-  
-  const suggestions = [
-    "Stranger Things",
-    "Stranger Things Season 4",
-    "Stranger",
-    "The Strangers",
-    "The Witcher",
-    "Wednesday",
-    "Squid Game",
-    "Money Heist"
-  ]
-  
-  return suggestions.filter(s => 
-    s.toLowerCase().includes(query.toLowerCase())
-  ).slice(0, 5)
-}
-
-// Function to search videos with filters
-export async function searchVideos(
-  query: string, 
-  filters?: {
-    genre?: string;
-    year?: string;
-    rating?: string;
-    page?: number;
-    limit?: number;
-  }
-): Promise<VideoContent[]> {
-  // In a real app, this would be an API call with query parameters
-  const defaultFilters = {
-    genre: '',
-    year: '',
-    rating: '',
-    page: 1,
-    limit: 20,
-  };
-  
-  const appliedFilters = { ...defaultFilters, ...filters };
-  
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // Filter content based on query and filters
-  let results = [...mockVideoContent];
-  
-  // Apply search term
-  if (query) {
-    const searchTerms = query.toLowerCase().split(' ');
-    results = results.filter(item => {
-      const matchesTitle = searchTerms.some(term => 
-        item.title.toLowerCase().includes(term)
-      );
-      const matchesGenres = item.genres.some(genre => 
-        searchTerms.some(term => genre.toLowerCase().includes(term))
-      );
-      return matchesTitle || matchesGenres;
-    });
-  }
-  
-  // Apply genre filter
-  if (appliedFilters.genre) {
-    results = results.filter(item => 
-      item.genres.some(genre => genre === appliedFilters.genre)
-    );
-  }
-  
-  // Apply year filter
-  if (appliedFilters.year) {
-    if (appliedFilters.year.includes('-')) {
-      // Range like "2010-2019"
-      const [startYear, endYear] = appliedFilters.year.split('-').map(Number);
-      results = results.filter(item => 
-        item.releaseYear >= startYear && item.releaseYear <= endYear
-      );
-    } else if (appliedFilters.year === "Before 2000") {
-      results = results.filter(item => item.releaseYear < 2000);
-    } else {
-      // Single year
-      results = results.filter(item => 
-        item.releaseYear === parseInt(appliedFilters.year)
-      );
-    }
-  }
-  
-  // Apply rating filter
-  if (appliedFilters.rating) {
-    results = results.filter(item => 
-      item.maturityRating === appliedFilters.rating
-    );
-  }
-  
-  // Apply pagination
-  const startIndex = (appliedFilters.page - 1) * appliedFilters.limit;
-  const endIndex = startIndex + appliedFilters.limit;
-  
-  return results.slice(startIndex, endIndex);
-}
-
-// Function to get video details by ID
+// Get video details by ID (simple version)
 export async function getVideoById(id: string): Promise<VideoContent | null> {
-  // In a real app, this would call an API
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const video = mockVideoContent.find(item => item.id === id);
-  return video || null;
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // For demo purposes, generate a mock video
+    if (!id) return null;
+
+    return {
+        id,
+        title: `Video ${id}`,
+        thumbnailPath: `/placeholder.svg?height=720&width=1280&text=Video${id}`,
+        backdropPath: `/placeholder.svg?height=1080&width=1920&text=Video${id}`,
+        overview: `This is a detailed overview for Video ${id}. It contains a comprehensive description of the content, including plot points, main characters, and themes.`,
+        releaseYear: 2022,
+        maturityRating: "TV-MA",
+        duration: "1h 45m",
+        genres: ["Action", "Adventure", "Drama"],
+        matchPercentage: 92,
+    };
 }
 
-// Function to get related videos for a particular video
-export async function getRelatedVideos(id: string): Promise<VideoContent[]> {
-  // In a real app, this would call an API
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Find the source video
-  const sourceVideo = mockVideoContent.find(item => item.id === id);
-  if (!sourceVideo) return [];
-  
-  // Get videos with at least one matching genre
-  const relatedVideos = mockVideoContent
-    .filter(item => 
-      item.id !== id && // Not the same video
-      item.genres.some(genre => sourceVideo.genres.includes(genre)) // Has at least one matching genre
-    )
-    .sort(() => Math.random() - 0.5) // Shuffle
-    .slice(0, 6); // Limit to 6 items
-    
-  return relatedVideos;
+// Get detailed content information - main function for the title page
+export async function getContentDetails(
+    id: string
+): Promise<ContentDetails | null> {
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    // For demo purposes, determine if this is a movie or series based on the ID
+    const isSeries = id.includes("series") || Math.random() > 0.5;
+
+    // Generate mock cast
+    const mockCast: CastMember[] = Array.from({ length: 12 }).map(
+        (_, index) => ({
+            id: `actor-${index + 1}`,
+            name: `Actor ${index + 1}`,
+            character: `Character ${index + 1}`,
+            profilePath: `/placeholder.svg?height=300&width=300&text=Actor${
+                index + 1
+            }`,
+            order: index,
+        })
+    );
+
+    // Generate mock reviews
+    const generateReviews = (
+        count: number,
+        type: "user" | "critic"
+    ): Review[] => {
+        return Array.from({ length: count }).map((_, index) => ({
+            id: `${type}-review-${index + 1}`,
+            author: `${type === "critic" ? "Critic" : "User"} ${index + 1}`,
+            authorImage: `/placeholder.svg?height=100&width=100&text=${type}${
+                index + 1
+            }`,
+            title: `${type === "critic" ? "Professional" : "User"} Review ${
+                index + 1
+            }`,
+            content: `This is a ${type} review for the content. It discusses various aspects like acting, direction, screenplay, and overall entertainment value. ${
+                type === "critic"
+                    ? "The review is written from a professional perspective."
+                    : "The review reflects personal opinion."
+            }`,
+            rating: Math.floor(Math.random() * 3) + 3, // 3-5 stars
+            date: `${Math.floor(Math.random() * 28) + 1}/${
+                Math.floor(Math.random() * 12) + 1
+            }/2023`,
+            helpfulCount: Math.floor(Math.random() * 100),
+            publication:
+                type === "critic" ? `Publication ${index + 1}` : undefined,
+        }));
+    };
+
+    // Generate mock episodes for series
+    const generateEpisodes = (
+        seasonNumber: number,
+        episodeCount: number
+    ): Episode[] => {
+        return Array.from({ length: episodeCount }).map((_, index) => ({
+            id: `s${seasonNumber}e${index + 1}`,
+            title: `Episode ${index + 1}`,
+            episodeNumber: index + 1,
+            seasonNumber,
+            overview: `This is the overview for Season ${seasonNumber}, Episode ${
+                index + 1
+            }. It describes the main plot points and events that occur in this episode.`,
+            thumbnailPath: `/placeholder.svg?height=720&width=1280&text=S${seasonNumber}E${
+                index + 1
+            }`,
+            duration: `${Math.floor(Math.random() * 30) + 30}m`,
+            airDate: `${Math.floor(Math.random() * 28) + 1}/${
+                Math.floor(Math.random() * 12) + 1
+            }/2023`,
+            director: `Director ${Math.floor(Math.random() * 5) + 1}`,
+            isNew: index === episodeCount - 1,
+        }));
+    };
+
+    // Generate mock seasons for series
+    const mockSeasons = isSeries
+        ? Array.from({ length: Math.floor(Math.random() * 5) + 1 }).map(
+              (_, index) => ({
+                  seasonNumber: index + 1,
+                  episodeCount: Math.floor(Math.random() * 10) + 5,
+                  episodes: generateEpisodes(
+                      index + 1,
+                      Math.floor(Math.random() * 10) + 5
+                  ),
+              })
+          )
+        : undefined;
+
+    // Calculate total episodes
+    const totalEpisodes =
+        mockSeasons?.reduce((acc, season) => acc + season.episodes.length, 0) ||
+        0;
+
+    return {
+        id,
+        title: `${isSeries ? "Series" : "Movie"} ${id}`,
+        type: isSeries ? "series" : "movie",
+        thumbnailPath: `/placeholder.svg?height=720&width=1280&text=${
+            isSeries ? "Series" : "Movie"
+        }${id}`,
+        backdropPath: `/placeholder.svg?height=1080&width=1920&text=${
+            isSeries ? "Series" : "Movie"
+        }${id}`,
+        logoPath: `/placeholder.svg?height=200&width=400&text=${
+            isSeries ? "Series" : "Movie"
+        }${id}`,
+        overview: `This is a detailed overview for ${
+            isSeries ? "Series" : "Movie"
+        } ${id}. It contains a comprehensive description of the content, including plot points, main characters, and themes. The story follows a group of characters as they navigate through various challenges and adventures.`,
+        releaseYear: 2020 + Math.floor(Math.random() * 4),
+        releaseDate: `${Math.floor(Math.random() * 28) + 1}/${
+            Math.floor(Math.random() * 12) + 1
+        }/2023`,
+        maturityRating: ["TV-MA", "TV-14", "PG-13", "R"][
+            Math.floor(Math.random() * 4)
+        ],
+        duration: isSeries
+            ? `${mockSeasons?.[0].episodes[0].duration}`
+            : `${Math.floor(Math.random() * 60) + 90}m`,
+        genres: [
+            ["Action", "Adventure", "Sci-Fi"],
+            ["Comedy", "Romance"],
+            ["Drama", "Thriller"],
+            ["Horror", "Mystery"],
+            ["Documentary", "Biography"],
+        ][Math.floor(Math.random() * 5)],
+        matchPercentage: Math.floor(Math.random() * 30) + 70,
+        cast: mockCast,
+        director: isSeries
+            ? undefined
+            : `Director ${Math.floor(Math.random() * 5) + 1}`,
+        writers: isSeries
+            ? undefined
+            : [
+                  `Writer ${Math.floor(Math.random() * 3) + 1}`,
+                  `Writer ${Math.floor(Math.random() * 3) + 4}`,
+              ],
+        creator: isSeries
+            ? `Creator ${Math.floor(Math.random() * 5) + 1}`
+            : undefined,
+        seasons: mockSeasons,
+        totalEpisodes,
+        audioLanguages: ["English", "Spanish", "French"],
+        subtitleLanguages: [
+            "English",
+            "Spanish",
+            "French",
+            "German",
+            "Italian",
+        ],
+        videoQuality: ["HD", "4K", "HDR", "Dolby Vision"][
+            Math.floor(Math.random() * 4)
+        ],
+        studio: `Studio ${Math.floor(Math.random() * 5) + 1}`,
+        awards:
+            Math.random() > 0.5
+                ? [
+                      `Award ${Math.floor(Math.random() * 3) + 1}`,
+                      `Award ${Math.floor(Math.random() * 3) + 4}`,
+                  ]
+                : [],
+        reviews: {
+            user: generateReviews(8, "user"),
+            critic: generateReviews(5, "critic"),
+            averageRating: Math.floor(Math.random() * 15) / 10 + 3.5, // 3.5-5.0
+            totalReviews: Math.floor(Math.random() * 1000) + 100,
+            ratingDistribution: [
+                Math.floor(Math.random() * 100) + 50, // 5 stars
+                Math.floor(Math.random() * 50) + 30, // 4 stars
+                Math.floor(Math.random() * 30) + 10, // 3 stars
+                Math.floor(Math.random() * 20) + 5, // 2 stars
+                Math.floor(Math.random() * 10) + 1, // 1 star
+            ],
+        },
+        similar: generateMockVideos(10, "similar"),
+    };
+}
+
+// Search videos
+export async function searchVideos(
+    query: string,
+    filters?: Record<string, any>
+): Promise<VideoContent[]> {
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    // For demo purposes, generate mock search results
+    return generateMockVideos(8, `search-${query}`);
+}
+
+// Get search suggestions
+export async function getSearchSuggestions(query: string): Promise<string[]> {
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Mock suggestions based on query
+    const suggestions = [
+        `${query} movies`,
+        `${query} tv shows`,
+        `${query} documentaries`,
+        `${query} actors`,
+        `${query} directors`,
+    ];
+
+    return suggestions;
+}
+
+// Get personalized recommendations
+export async function getPersonalizedRecommendations(): Promise<{
+    becauseYouWatched: VideoContent[];
+    topPicks: VideoContent[];
+    watchAgain: VideoContent[];
+}> {
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    return {
+        becauseYouWatched: generateMockVideos(8, "because"),
+        topPicks: generateMockVideos(10, "picks"),
+        watchAgain: generateMockVideos(6, "again"),
+    };
 }

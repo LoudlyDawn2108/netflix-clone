@@ -3,9 +3,10 @@ import Navigation from "./components/navigation";
 import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
 import WatchPage from "./pages/WatchPage";
-import ProfilePage from "./pages/ProfilePage";
+import ProfilePage from "./components/profile-page";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import TitlePage from "./pages/TitlePage";
 
 function App() {
     return (
@@ -39,7 +40,6 @@ function App() {
                         path="/watch/:id"
                         element={
                             <>
-                                <Navigation />
                                 <WatchPage />
                             </>
                         }
@@ -50,6 +50,15 @@ function App() {
                             <>
                                 <Navigation />
                                 <ProfilePage />
+                            </>
+                        }
+                    />
+                    <Route
+                        path="/title/:id"
+                        element={
+                            <>
+                                <Navigation />
+                                <TitlePage />
                             </>
                         }
                     />

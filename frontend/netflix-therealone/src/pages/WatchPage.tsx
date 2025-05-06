@@ -1,275 +1,199 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getVideoById, getRelatedVideos } from "../lib/content-service";
-import RecommendationRow from "../components/recommendation-row";
-import { Button } from "../components/ui/button";
-import LoadingSkeleton from "../components/ui/loading-skeleton";
-import type { VideoContent } from "../lib/types";
+"use client";
 
-export default function WatchPage() {
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Volume2, VolumeX, Maximize, Settings } from "lucide-react";
+import { getVideoById } from "@/lib/content-service";
+import type { VideoContent } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+
+export default function VideoPlayerPage() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const [video, setVideo] = useState<VideoContent | null>(null);
-    const [relatedVideos, setRelatedVideos] = useState<VideoContent[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState("");
+    const [muted, setMuted] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(true);
 
     useEffect(() => {
-        const fetchVideoData = async () => {
-            if (!id) return;
-
-            setLoading(true);
-            setError(null);
-
+        const fetchVideo = async () => {
             try {
-                // Fetch video details
-                const videoData = await getVideoById(id);
-                if (!videoData) {
-                    setError("Video not found");
+                if (!id) {
+                    setError("Video ID not found");
+                    setLoading(false);
                     return;
                 }
-
+                const videoData = await getVideoById(id);
                 setVideo(videoData);
-
-                // Fetch related videos
-                const related = await getRelatedVideos(id);
-                setRelatedVideos(related);
-            } catch (err) {
-                console.error("Error fetching video:", err);
-                setError("Failed to load video. Please try again later.");
+            } catch {
+                setError("Failed to load video");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchVideoData();
+        fetchVideo();
     }, [id]);
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+    };
 
     if (loading) {
         return (
-            <div className="pt-16">
-                <LoadingSkeleton type="hero" />
-                <div className="container mx-auto px-4 py-8">
-                    <LoadingSkeleton
-                        type="text"
-                        count={3}
-                        className="max-w-2xl mb-8"
-                    />
-                    <LoadingSkeleton type="row" className="mb-8" />
-                </div>
+            <div className="flex items-center justify-center min-h-screen bg-black">
+                <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     if (error || !video) {
         return (
-            <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center">
-                <div className="text-red-600 text-5xl mb-4">⚠️</div>
-                <h1 className="text-2xl font-bold mb-4">
-                    {error || "Video not found"}
-                </h1>
-                <p className="text-gray-400 mb-8">
-                    The video you're looking for might have been removed or is
-                    unavailable.
-                </p>
-                <Link to="/">
-                    <Button
-                        variant="default"
-                        size="lg"
-                        className="bg-red-600 hover:bg-red-700"
-                    >
-                        Back to Home
-                    </Button>
-                </Link>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-black">
+                <p className="text-xl mb-4">{error || "Video not found"}</p>
+                <Button onClick={() => navigate("/")} variant="outline">
+                    Back to Home
+                </Button>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-black">
-            {/* Video player section */}
-            <div className="pt-16 relative">
-                <div className="relative w-full aspect-video bg-black">
-                    {/* In a real app, this would be a video player */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
-                        <div className="text-center p-4">
-                            <div className="bg-white/20 backdrop-blur-sm p-8 rounded-lg">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="mx-auto h-16 w-16 text-red-600 mb-4"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
+        <div className="min-h-screen bg-black flex flex-col">
+            {/* Video Player */}
+            <div className="relative w-full h-screen bg-black">
+                {/* Video */}
+                <video
+                    className="w-full h-full object-contain"
+                    src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                    autoPlay
+                    playsInline
+                    onTimeUpdate={(e) =>
+                        setCurrentTime(e.currentTarget.currentTime)
+                    }
+                    onDurationChange={(e) =>
+                        setDuration(e.currentTarget.duration)
+                    }
+                    onEnded={() => setIsPlaying(false)}
+                    muted={muted}
+                />
+
+                {/* Controls Overlay */}
+                <div className="absolute inset-0 flex flex-col justify-between p-4 bg-gradient-to-b from-black/70 via-transparent to-black/70 opacity-0 hover:opacity-100 transition-opacity">
+                    {/* Top Controls */}
+                    <div className="flex items-center">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-white"
+                            onClick={() => navigate(-1)}
+                        >
+                            <ArrowLeft className="h-6 w-6" />
+                        </Button>
+                        <h1 className="ml-4 text-xl font-medium">
+                            {video.title}
+                        </h1>
+                    </div>
+
+                    {/* Bottom Controls */}
+                    <div className="space-y-4">
+                        {/* Progress Bar */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm">
+                                {formatTime(currentTime)}
+                            </span>
+                            <Slider
+                                value={[currentTime]}
+                                max={duration}
+                                step={0.1}
+                                className="flex-1 [&>span:first-child]:h-1 [&>span:first-child]:bg-white/30 [&_[role=slider]]:bg-red-600 [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-red-600"
+                                onValueChange={(value) => {
+                                    const video =
+                                        document.querySelector("video");
+                                    if (video) video.currentTime = value[0];
+                                }}
+                            />
+                            <span className="text-sm">
+                                {formatTime(duration)}
+                            </span>
+                        </div>
+
+                        {/* Control Buttons */}
+                        <div className="flex items-center">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-white"
+                                onClick={() => {
+                                    const video =
+                                        document.querySelector("video");
+                                    if (video) {
+                                        if (isPlaying) {
+                                            video.pause();
+                                        } else {
+                                            video.play();
+                                        }
+                                        setIsPlaying(!isPlaying);
+                                    }
+                                }}
+                            >
+                                {isPlaying ? (
+                                    <svg
+                                        className="h-6 w-6"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                                    </svg>
+                                ) : (
+                                    <svg
+                                        className="h-6 w-6"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                )}
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-white"
+                                onClick={() => setMuted(!muted)}
+                            >
+                                {muted ? (
+                                    <VolumeX className="h-6 w-6" />
+                                ) : (
+                                    <Volume2 className="h-6 w-6" />
+                                )}
+                            </Button>
+
+                            <div className="ml-auto flex items-center gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-white"
                                 >
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polygon points="10 8 16 12 10 16 10 8"></polygon>
-                                </svg>
-                                <p className="text-xl">
-                                    Demo Mode: Video Playback Simulated
-                                </p>
+                                    <Settings className="h-6 w-6" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-white"
+                                >
+                                    <Maximize className="h-6 w-6" />
+                                </Button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Video controls overlay */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                    <div className="container mx-auto flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold">
-                                {video.title}
-                            </h1>
-                            <div className="flex items-center text-sm mt-1">
-                                <span className="text-green-500 font-semibold">
-                                    {video.matchPercentage}% Match
-                                </span>
-                                <span className="mx-2">
-                                    {video.releaseYear}
-                                </span>
-                                <span className="border border-gray-600 px-1 text-xs mx-2">
-                                    {video.maturityRating}
-                                </span>
-                                <span>{video.duration}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                className="bg-transparent border-white text-white"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-5 w-5 mr-2"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                                </svg>
-                                Rate
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="bg-transparent border-white text-white"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-5 w-5 mr-2"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                Add to List
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Content details */}
-            <div className="container mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2">
-                        <p className="text-lg mb-6">{video.overview}</p>
-
-                        <div>
-                            <h2 className="text-xl font-medium mb-2">
-                                Details
-                            </h2>
-                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-                                <div>
-                                    <dt className="text-gray-400 inline">
-                                        Released:
-                                    </dt>
-                                    <dd className="inline ml-2">
-                                        {video.releaseYear}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-gray-400 inline">
-                                        Rating:
-                                    </dt>
-                                    <dd className="inline ml-2">
-                                        {video.maturityRating}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-gray-400 inline">
-                                        Duration:
-                                    </dt>
-                                    <dd className="inline ml-2">
-                                        {video.duration}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-gray-400 inline">
-                                        Genres:
-                                    </dt>
-                                    <dd className="inline ml-2">
-                                        {video.genres.join(", ")}
-                                    </dd>
-                                </div>
-                            </dl>
-                        </div>
-                    </div>
-
-                    <div>
-                        {/* Suggested actions or extras could go here */}
-                        <div className="bg-zinc-900 p-4 rounded-lg">
-                            <h3 className="text-lg font-medium mb-3">
-                                Cast & Crew
-                            </h3>
-                            <ul className="space-y-2">
-                                <li>
-                                    <span className="text-gray-400">
-                                        Director:
-                                    </span>{" "}
-                                    Sample Director
-                                </li>
-                                <li>
-                                    <span className="text-gray-400">
-                                        Writer:
-                                    </span>{" "}
-                                    Sample Writer
-                                </li>
-                                <li>
-                                    <span className="text-gray-400">Cast:</span>{" "}
-                                    Actor One, Actor Two, Actor Three
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Related content */}
-            <div className="container mx-auto px-4 py-8">
-                {relatedVideos.length > 0 && (
-                    <div className="pt-4">
-                        <h2 className="text-2xl font-medium mb-4">
-                            More Like This
-                        </h2>
-                        <RecommendationRow
-                            title=""
-                            items={relatedVideos}
-                            type="related"
-                        />
-                    </div>
-                )}
             </div>
         </div>
     );

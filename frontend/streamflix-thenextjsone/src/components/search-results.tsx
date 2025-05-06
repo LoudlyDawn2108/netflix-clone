@@ -66,7 +66,7 @@ export default function SearchResults({
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
           >
-            <Link href={`/watch/${item.id}`}>
+            <Link href={`/title/${item.id}`}>
               <div className="relative aspect-video rounded-md overflow-hidden transition-transform duration-300 group-hover:scale-105">
                 <Image src={item.thumbnailPath || "/placeholder.svg"} alt={item.title} fill className="object-cover" />
 

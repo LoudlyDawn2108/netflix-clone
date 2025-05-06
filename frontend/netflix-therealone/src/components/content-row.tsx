@@ -43,7 +43,7 @@ export default function ContentRow({ title, items, type }: ContentRowProps) {
                 style={{ width: hoveredIndex === index ? "300px" : "200px" }}
                 onMouseEnter={() => setHoveredIndex(index)}
             >
-                <Link to={`/watch/${item.id}`}>
+                <Link to={`/title/${item.id}`}>
                     <div className="relative aspect-video">
                         <img
                             src={item.thumbnailPath || "/placeholder.svg"}

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Hero from "@/components/hero";
 import ContentRow from "@/components/content-row";
 import RecommendationRow from "@/components/recommendation-row";
-import { getHomePageContent } from "@/lib/content-service";
+import { getHomePageContent } from "@/lib/api/content-service";
 
 export default async function HomePage() {
     const {
@@ -18,10 +18,10 @@ export default async function HomePage() {
     } = await getHomePageContent();
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen pb-20">
             <Hero featured={featured} />
 
-            <div className="space-y-8 p-4 md:px-8 bg-black">
+            <div className="space-y-8 mt-4 px-4 md:px-8">
                 {continueWatching.items.length > 0 && (
                     <Suspense
                         fallback={

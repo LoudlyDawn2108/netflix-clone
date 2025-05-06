@@ -64,3 +64,68 @@ export interface AuthState {
   currentProfile: Profile | null
   token: string | null
 }
+
+export interface CastMember {
+  id: string
+  name: string
+  character: string
+  profilePath: string
+  order: number
+}
+
+export interface Review {
+  id: string
+  author: string
+  authorImage?: string
+  title: string
+  content: string
+  rating: number
+  date: string
+  helpfulCount: number
+  publication?: string
+}
+
+export interface Episode {
+  id: string
+  title: string
+  episodeNumber: number
+  seasonNumber: number
+  overview: string
+  thumbnailPath: string
+  duration: string
+  airDate: string
+  director: string
+  isNew?: boolean
+}
+
+export interface Season {
+  id: string
+  seasonNumber: number
+  title: string
+  overview: string
+  episodes: Episode[]
+}
+
+export interface ContentDetails extends VideoContent {
+  type: "movie" | "series"
+  releaseDate: string
+  cast: CastMember[]
+  director?: string // For movies
+  writers?: string[] // For movies
+  creator?: string // For series
+  seasons?: Season[] // For series
+  totalEpisodes?: number // For series
+  audioLanguages: string[]
+  subtitleLanguages: string[]
+  videoQuality: string
+  studio?: string
+  awards?: string[]
+  reviews: {
+    user: Review[]
+    critic: Review[]
+    averageRating: number
+    totalReviews: number
+    ratingDistribution: number[] // [5-star count, 4-star count, 3-star count, 2-star count, 1-star count]
+  }
+  similar: VideoContent[]
+}
