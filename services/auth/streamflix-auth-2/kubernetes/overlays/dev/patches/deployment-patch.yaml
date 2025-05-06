@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamflix-auth
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: auth-service
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "300m"
+            memory: "384Mi"
+        env:
+        - name: DB_LOGGING
+          value: "true"
+        - name: DB_SYNCHRONIZE
+          value: "true"
+        - name: NODE_ENV
+          value: "development"

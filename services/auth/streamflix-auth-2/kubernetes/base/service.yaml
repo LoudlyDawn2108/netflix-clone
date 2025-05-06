@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamflix-auth
+  labels:
+    app: streamflix-auth
+    service: authentication
+spec:
+  selector:
+    app: streamflix-auth
+  ports:
+  - port: 80
+    targetPort: 3000
+    name: http
+  type: ClusterIP

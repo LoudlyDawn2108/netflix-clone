@@ -1,0 +1,65 @@
+groups:
+- name: auth_service_alerts
+  rules:
+  - alert: AuthServiceDown
+    expr: up{job="auth-service"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Auth Service is down"
+      description: "Auth service has been down for more than 1 minute."
+
+  - alert: HighLoginFailureRate
+    expr: sum(increase(auth_login_failures_total[5m])) / sum(increase(auth_login_attempts_total[5m])) > 0.3
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High login failure rate"
+      description: "Login failure rate is above 30% for 5 minutes. Current value is {{ $value | humanizePercentage }}."
+
+  - alert: HighRequestLatency
+    expr: histogram_quantile(0.95, sum(rate(auth_request_duration_seconds_bucket{route=~"/api/auth/.*"}[5m])) by (le, route)) > 0.5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High API latency"
+      description: "P95 latency for route {{ $labels.route }} is above 500ms. Current value is {{ $value | humanizeDuration }}."
+
+  - alert: DatabaseConnectionPoolDepletion
+    expr: auth_database_connection_pool{state="idle"} < 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Database connection pool almost depleted"
+      description: "Available database connections are running low. Only {{ $value }} idle connections left."
+
+  - alert: RateLimitHittingRepeated
+    expr: sum(increase(auth_rate_limited_requests_total[15m])) > 10
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Repeated rate limiting"
+      description: "Rate limiting has been triggered more than 10 times in the last 15 minutes. Possible brute force attack."
+
+  - alert: HighErrorRate
+    expr: sum(rate(auth_request_duration_seconds_count{status_code=~"5.."}[5m])) / sum(rate(auth_request_duration_seconds_count[5m])) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High error rate"
+      description: "Error rate is above 5% for 5 minutes. Current value is {{ $value | humanizePercentage }}."
+
+  - alert: RedisConnectionIssues
+    expr: up{job="auth-service"} == 1 and auth_redis_up == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Redis connection issues"
+      description: "Auth service is unable to connect to Redis for more than 2 minutes."
