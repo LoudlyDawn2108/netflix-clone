@@ -1,0 +1,10 @@
+FROM gradle:8.2-jdk17 AS build
+
+WORKDIR /app
+
+# Copy source code
+COPY src ./src
+COPY build.gradle.kts ./build.gradle.kts
+
+# Run tests
+CMD ["gradle", "test", "--no-daemon"]
