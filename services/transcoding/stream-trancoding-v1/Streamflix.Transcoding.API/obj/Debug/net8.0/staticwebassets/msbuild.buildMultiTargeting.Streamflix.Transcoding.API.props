@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Streamflix.Transcoding.API.props" />
+</Project>

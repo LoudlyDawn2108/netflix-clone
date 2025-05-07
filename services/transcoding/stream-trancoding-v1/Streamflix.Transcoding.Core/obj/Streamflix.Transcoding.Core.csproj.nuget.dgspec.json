@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj": {}
+    "d:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj": {}
   },
   "projects": {
-    "D:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj": {
+    "d:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj",
+        "projectUniqueName": "d:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj",
         "projectName": "Streamflix.Transcoding.Core",
-        "projectPath": "D:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj",
+        "projectPath": "d:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\Streamflix.Transcoding.Core.csproj",
         "packagesPath": "C:\\Users\\haini\\.nuget\\packages\\",
-        "outputPath": "D:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\obj\\",
+        "outputPath": "d:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\PG files(x86)\\Microsoft Visual Studio\\NuGetPackages"

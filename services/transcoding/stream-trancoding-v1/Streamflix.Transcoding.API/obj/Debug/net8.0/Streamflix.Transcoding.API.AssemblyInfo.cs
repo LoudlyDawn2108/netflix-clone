@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Streamflix.Transcoding.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a7261052cc9a7d6cc56f05f6522b5a20415c032")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b576367ae0e772654315ce59015633bc802c80c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Streamflix.Transcoding.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Streamflix.Transcoding.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
