@@ -9,100 +9,54 @@ using System.Threading.Tasks;
 using System;
 
 namespace Streamflix.Transcoding.Worker.Handlers
-{
-    public class JobCreationHandlerService : IJobCreationHandlerService
+{    public class JobCreationHandlerService : IJobCreationHandlerService
     {
         private readonly ILogger<JobCreationHandlerService> _logger;
-        private readonly ITranscodingRepository _transcodingRepository; 
-        private readonly IDistributedLockService _distributedLockService; 
-        private readonly IPublishEndpoint _publishEndpoint; 
+        private readonly ITranscodingService _transcodingService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public JobCreationHandlerService(
             ILogger<JobCreationHandlerService> logger,
-            ITranscodingRepository transcodingRepository,
-            IDistributedLockService distributedLockService,
+            ITranscodingService transcodingService,
             IPublishEndpoint publishEndpoint)
         {
-            _logger = logger;
-            _transcodingRepository = transcodingRepository;
-            _distributedLockService = distributedLockService;
-            _publishEndpoint = publishEndpoint;
-        }
-
-        public async Task HandleVideoUploadedAsync(VideoUploaded videoUploadedEvent)
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _transcodingService = transcodingService ?? throw new ArgumentNullException(nameof(transcodingService));
+            _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+        }        public async Task HandleVideoUploadedAsync(VideoUploaded videoUploadedEvent)
         {
-            var lockKey = $"job-creation:{videoUploadedEvent.VideoId}:{videoUploadedEvent.TenantId}";
-            var lockAcquired = false;
-
             try
             {
-                lockAcquired = await _distributedLockService.AcquireLockAsync(lockKey, TimeSpan.FromMinutes(1));
-                if (!lockAcquired)
-                {
-                    _logger.LogWarning("Could not acquire lock for VideoId: {VideoId}, TenantId: {TenantId}. Event might be a duplicate or being processed.", 
-                        videoUploadedEvent.VideoId, videoUploadedEvent.TenantId);
-                    return; 
-                }
-
-                var existingJob = await _transcodingRepository.GetJobByVideoIdAsync(videoUploadedEvent.VideoId, videoUploadedEvent.TenantId);
-                if (existingJob != null)
-                {
-                    _logger.LogInformation("Job already exists for VideoId: {VideoId}, TenantId: {TenantId}. Skipping creation.", 
-                        videoUploadedEvent.VideoId, videoUploadedEvent.TenantId);
-                    return; 
-                }
-
-                _logger.LogInformation("Creating new transcoding job for VideoId: {VideoId}, FilePath: {FilePath}, TenantId: {TenantId}",
+                _logger.LogInformation("Processing VideoUploaded event for VideoId: {VideoId}, FilePath: {FilePath}, TenantId: {TenantId}",
                     videoUploadedEvent.VideoId, videoUploadedEvent.FilePath, videoUploadedEvent.TenantId);
 
-                var newJob = new TranscodingJobEntity // Using alias
+                // Check if the job is already being processed
+                if (await _transcodingService.IsJobBeingProcessedAsync(videoUploadedEvent.VideoId))
                 {
-                    Id = Guid.NewGuid(), 
-                    VideoId = videoUploadedEvent.VideoId,
-                    TenantId = videoUploadedEvent.TenantId,
-                    InputFileS3Path = videoUploadedEvent.FilePath,
-                    Status = TranscodingJobStatus.Received, // This is from Streamflix.Transcoding.Core.Models
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
+                    _logger.LogWarning("Job for VideoId: {VideoId} is already being processed. Skipping.",
+                        videoUploadedEvent.VideoId);
+                    return;
+                }
 
-                await _transcodingRepository.CreateJobAsync(newJob);
-                _logger.LogInformation("Successfully created transcoding job with Id: {JobId}", newJob.Id);
+                // Process the video using our TranscodingService
+                var job = await _transcodingService.ProcessVideoAsync(videoUploadedEvent);
+                _logger.LogInformation("Successfully processed transcoding job with Id: {JobId} for VideoId: {VideoId}. Status: {Status}",
+                    job.Id, job.VideoId, job.Status);
 
-                await Task.Delay(TimeSpan.FromSeconds(5)); 
-
-                var videoTranscodedEvent = new VideoTranscoded
+                // If the job is completed, generate and publish the transcoded event
+                if (job.Status == TranscodingJobStatus.Completed)
                 {
-                    JobId = newJob.Id, // Refers to TranscodingJobEntity.Id
-                    VideoId = newJob.VideoId, // Refers to TranscodingJobEntity.VideoId
-                    TenantId = newJob.TenantId, // Refers to TranscodingJobEntity.TenantId
-                    Success = true, 
-                    ManifestUrl = $"s3://{newJob.TenantId}/videos/{newJob.VideoId}/manifest.m3u8", 
-                    TranscodingStartedAt = newJob.CreatedAt, // Refers to TranscodingJobEntity.CreatedAt
-                    TranscodingCompletedAt = DateTimeOffset.UtcNow,
-                    OutputDetails = new System.Collections.Generic.Dictionary<string, string>
-                    {
-                        { "resolution_1080p", $"s3://{newJob.TenantId}/videos/{newJob.VideoId}/1080p/" },
-                        { "resolution_720p", $"s3://{newJob.TenantId}/videos/{newJob.VideoId}/720p/" }
-                    }
-                };
-
-                await _publishEndpoint.Publish(videoTranscodedEvent);
-                _logger.LogInformation("Published VideoTranscoded event for JobId: {JobId}", newJob.Id);
-
+                    var videoTranscodedEvent = await _transcodingService.GenerateTranscodedEventAsync(job.Id);
+                    await _publishEndpoint.Publish(videoTranscodedEvent);
+                    _logger.LogInformation("Published VideoTranscoded event for JobId: {JobId}", job.Id);
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing VideoUploaded event for VideoId: {VideoId}", videoUploadedEvent.VideoId);
-                throw; 
+                throw;
             }
-            finally
-            {
-                if (lockAcquired)
-                {
-                    await _distributedLockService.ReleaseLockAsync(lockKey);
-                }
-            }
+        }
         }
     }
 }

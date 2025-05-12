@@ -17,7 +17,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 // Add services to the container
 builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddScoped<IJobCreationHandlerService, JobCreationHandlerService>(); 
+builder.Services.AddScoped<IJobCreationHandlerService, JobCreationHandlerService>();
 
 // Add HttpClient with manual retry policy instead of using AddPolicyHandler
 builder.Services.AddHttpClient("S3Client")

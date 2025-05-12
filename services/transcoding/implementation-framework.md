@@ -11,6 +11,48 @@ This document provides session-by-session instructions for building the Streamfl
 -   **Always start each session by reading the system-context.md file to maintain awareness of the overall system**
 -   Your implementation should intergrate nicely with the current code base
 
+## Overall Conventions
+
+To ensure consistency, maintainability, and collaboration, please adhere to the following conventions throughout the development process:
+
+-   **Coding Style:**
+    -   Follow the official [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions).
+    -   Use `async/await` for all I/O-bound operations to maintain responsiveness.
+    -   Employ LINQ for data manipulation where it enhances readability and conciseness.
+    -   Prefer expression-bodied members for simple, single-line methods and properties.
+-   **Naming Conventions:**
+    -   Use PascalCase for class names, method names, and properties.
+    -   Use camelCase for local variables and method parameters.
+    -   Prefix interfaces with `I` (e.g., `ITranscodingService`).
+    -   Avoid abbreviations and use descriptive names.
+-   **Error Handling:**
+    -   Use exceptions for exceptional situations, not for control flow.
+    -   Provide clear and informative error messages.
+    -   Implement robust error handling and logging for all external service interactions.
+    -   Utilize `try-catch-finally` blocks appropriately for resource cleanup.
+-   **Logging:**
+    -   Implement structured logging (e.g., using Serilog) for all significant events, errors, and diagnostic information.
+    -   Include correlation IDs in logs to trace requests across services.
+    -   Avoid logging sensitive information.
+-   **Testing:**
+    -   Write unit tests for all business logic in the Core project. Aim for high test coverage.
+    -   Write integration tests for interactions between components (e.g., database, message queues, external APIs).
+    -   Ensure all tests pass before committing code.
+-   **Code Comments and Documentation:**
+    -   Write clear and concise comments to explain complex logic or non-obvious decisions.
+    -   Use XML documentation comments for all public APIs, classes, and methods.
+    -   Keep comments and documentation up-to-date with code changes.
+-   **Committing Code:**
+    -   Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for commit messages (e.g., `feat: add user authentication`, `fix: resolve issue with video processing`).
+    -   Make small, atomic commits that represent a single logical change.
+    -   Ensure the code builds and all tests pass before pushing changes.
+-   **Dependency Management:**
+    -   Keep NuGet packages updated to their latest stable versions, unless there's a specific reason not to.
+    -   Minimize dependencies in the Core project.
+-   **Configuration:**
+    -   Use the `IOptions` pattern for accessing configuration settings.
+    -   Store sensitive configuration values securely (e.g., using user secrets in development, Azure Key Vault or similar in production).
+
 ## Session Workflow
 
 Before starting each session:

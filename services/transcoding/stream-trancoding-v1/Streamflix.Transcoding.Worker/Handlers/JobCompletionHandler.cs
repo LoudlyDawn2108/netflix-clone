@@ -71,19 +71,17 @@ public class JobCompletionHandler : BackgroundService
                         await _repository.UpdateJobAsync(job);
                         
                         _logger.LogInformation("Attempting to publish completion event for job {JobId}, attempt {Attempt}", 
-                            job.Id, job.RetryCount);
-
-                        // Use retry policy when publishing events
+                            job.Id, job.RetryCount);                        // Use retry policy when publishing events
                         await _retryPolicy.ExecuteAsync(async () => 
                         {
-                            // Generate the transcoded event
+                            // Generate the transcoded event with our new implementation
                             var transcodedEvent = await _transcodingService.GenerateTranscodedEventAsync(job.Id);
 
                             // Publish the event
                             await _publishEndpoint.Publish(transcodedEvent, stoppingToken);
 
-                            _logger.LogInformation("Published VideoTranscoded event for job {JobId}, video {VideoId}",
-                                job.Id, job.VideoId);
+                            _logger.LogInformation("Published VideoTranscoded event for job {JobId}, video {VideoId}, with manifest {ManifestUrl}",
+                                job.Id, job.VideoId, transcodedEvent.ManifestUrl);
 
                             // Mark the job as notified
                             job.Status = TranscodingJobStatus.Notified;
