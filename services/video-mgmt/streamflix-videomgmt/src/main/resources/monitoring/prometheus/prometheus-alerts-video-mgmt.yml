@@ -1,0 +1,83 @@
+groups:
+- name: VideoManagementServiceAlerts
+  rules:
+  - alert: HighHeapUsage
+    expr: sum(jvm_memory_used_bytes{area=\"heap\", app=\"video-management-service\"}) / sum(jvm_memory_max_bytes{area=\"heap\", app=\"video-management-service\"}) * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High Heap Usage (instance {{ $labels.instance }})
+      description: "Heap usage is {{ $value | printf \"%.2f\" }}% for more than 5 minutes."
+
+  - alert: HighCpuUsage
+    expr: process_cpu_usage{app=\"video-management-service\"} * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High CPU Usage (instance {{ $labels.instance }})
+      description: "CPU usage is {{ $value | printf \"%.2f\" }}% for more than 5 minutes."
+
+  - alert: HighHttpErrorRate5xx
+    expr: sum(rate(http_server_requests_seconds_count{app=\"video-management-service\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{app=\"video-management-service\"}[5m])) * 100 > 5
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: High HTTP 5xx Error Rate (instance {{ $labels.instance }})
+      description: "HTTP 5xx error rate is {{ $value | printf \"%.2f\" }}% for more than 2 minutes."
+
+  - alert: HighHttpErrorRate4xx
+    expr: sum(rate(http_server_requests_seconds_count{app=\"video-management-service\", status=~\"4..\"}[5m])) / sum(rate(http_server_requests_seconds_count{app=\"video-management-service\"}[5m])) * 100 > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High HTTP 4xx Error Rate (instance {{ $labels.instance }})
+      description: "HTTP 4xx error rate is {{ $value | printf \"%.2f\" }}% for more than 5 minutes."
+
+  - alert: HighRequestLatencyP95
+    expr: histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{app=\"video-management-service\"}[5m])) by (le, uri, method)) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High Request Latency P95 (instance {{ $labels.instance }}, uri {{ $labels.uri }}, method {{ $labels.method }})
+      description: "95th percentile request latency is {{ $value | printf \"%.2f\" }}s for more than 5 minutes for {{ $labels.method }} {{ $labels.uri }}."
+
+  - alert: LowCacheHitRate
+    expr: sum(rate(cache_gets_total{cache_manager=\"cacheManager\", name=~\".*\", result=\"hit\", app=\"video-management-service\"}[5m])) / sum(rate(cache_gets_total{cache_manager=\"cacheManager\", name=~\".*\", app=\"video-management-service\"}[5m])) * 100 < 80
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: Low Cache Hit Rate (instance {{ $labels.instance }})
+      description: "Overall cache hit rate is {{ $value | printf \"%.2f\" }}% for more than 10 minutes."
+
+  - alert: KafkaConsumerGroupLagging
+    expr: sum(kafka_consumer_fetch_lag_avg{app=\"video-management-service\"}) by (group_id, topic) > 1000
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Kafka Consumer Group Lagging (group {{ $labels.group_id }}, topic {{ $labels.topic }})
+      description: "Kafka consumer group {{ $labels.group_id }} for topic {{ $labels.topic }} has an average lag of {{ $value | printf \"%.0f\" }} messages for more than 5 minutes."
+
+  - alert: DatabaseConnectionPoolSaturation
+    expr: (hikaricp_connections_active{app=\"video-management-service\"} / hikaricp_connections_max{app=\"video-management-service\"}) * 100 > 90
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Database Connection Pool Saturation (instance {{ $labels.instance }}, pool {{ $labels.pool }})
+      description: "Database connection pool {{ $labels.pool }} is {{ $value | printf \"%.2f\" }}% saturated for more than 5 minutes."
+
+  - alert: RedisClusterUnavailable
+    expr: redis_up{app=\"video-management-service\"} == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: Redis Cluster Unavailable (instance {{ $labels.instance }})
+      description: "Redis cluster is reported as down for more than 2 minutes."

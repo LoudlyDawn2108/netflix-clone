@@ -2,9 +2,14 @@ FROM gradle:8.2-jdk17 AS build
 
 WORKDIR /app
 
+# Copy gradle files first for better layer caching
+COPY build.gradle.kts settings.gradle.kts ./
+
 # Copy source code
 COPY src ./src
-COPY build.gradle.kts ./build.gradle.kts
 
-# Run tests
-CMD ["gradle", "test", "--no-daemon"]
+# Update repositories configuration
+RUN echo 'repositories { mavenCentral(); maven { url "https://repo.spring.io/milestone" }; maven { url "https://repo.spring.io/release" } }' > init.gradle
+
+# Run tests with additional repositories
+CMD ["gradle", "test", "--no-daemon", "--init-script", "init.gradle"]

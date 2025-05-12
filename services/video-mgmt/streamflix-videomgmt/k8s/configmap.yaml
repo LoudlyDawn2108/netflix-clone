@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: video-mgmt-config
+  labels:
+    app: video-management-service
+data:
+  # Application configuration
+  application.yml: |
+    spring:
+      profiles:
+        active: prod
+      kafka:
+        bootstrap-servers: ${KAFKA_BROKERS}
+      cloud:
+        stream:
+          kafka:
+            binder:
+              brokers: ${KAFKA_BROKERS}
+      redis:
+        host: ${REDIS_HOST}
+        port: ${REDIS_PORT}
+
+    # Custom Kafka topic configuration
+    kafka:
+      topics:
+        video-created: streamflix.videos.created
+        video-updated: streamflix.videos.updated
+        video-deleted: streamflix.videos.deleted
+        video-status-changed: streamflix.videos.status-changed
+        video-processing-requested: streamflix.videos.processing-requested
+
+    # Service configuration values
+    server:
+      port: 8080
+      shutdown: graceful
+      tomcat:
+        max-threads: 200
+        min-spare-threads: 20
+    spring.lifecycle.timeout-per-shutdown-phase: 30s
+
+    # Observability configuration
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus
+      endpoint:
+        health:
+          show-details: always
+          probes:
+            enabled: true
+
+  # Individual configuration values
+  s3-endpoint: "https://s3.amazonaws.com"
+  s3-region: "us-east-1"
+  s3-bucket-name: "streamflix-videos-prod"
+  kafka-servers: "kafka-headless.kafka.svc.cluster.local:9092"
+  redis-host: "redis-master.redis.svc.cluster.local"
+  redis-port: "6379"

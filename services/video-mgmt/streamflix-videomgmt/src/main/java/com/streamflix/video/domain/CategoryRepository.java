@@ -39,6 +39,14 @@ public interface CategoryRepository {
     List<Category> findAll();
     
     /**
+     * Find all categories with pagination
+     * @param page The page number (0-based)
+     * @param size The page size
+     * @return List of categories for the requested page
+     */
+    List<Category> findAll(int page, int size);
+    
+    /**
      * Delete a category from the repository
      * @param categoryId The id of the category to delete
      */

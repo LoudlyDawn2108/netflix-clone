@@ -1,5 +1,7 @@
 package com.streamflix.video.infrastructure.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +16,11 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +43,8 @@ public class AwsS3Service implements S3Service {
     }
     
     @Override
+    @CircuitBreaker(name = "s3Service", fallbackMethod = "fallbackGeneratePresignedUploadUrl")
+    @Retry(name = "s3Service")
     public URL generatePresignedUploadUrl(String key, String contentType, Duration expiration) {
         logger.debug("Generating presigned upload URL for key: {} with content type: {}", key, contentType);
         
@@ -60,6 +66,8 @@ public class AwsS3Service implements S3Service {
     }
     
     @Override
+    @CircuitBreaker(name = "s3Service", fallbackMethod = "fallbackGeneratePresignedDownloadUrl")
+    @Retry(name = "s3Service")
     public URL generatePresignedDownloadUrl(String key, Duration expiration) {
         logger.debug("Generating presigned download URL for key: {}", key);
         
@@ -80,6 +88,8 @@ public class AwsS3Service implements S3Service {
     }
     
     @Override
+    @CircuitBreaker(name = "s3Service", fallbackMethod = "fallbackUploadFile")
+    @Retry(name = "s3Service")
     public boolean uploadFile(String key, InputStream content, String contentType) {
         try {
             logger.debug("Uploading file to S3 with key: {} and content type: {}", key, contentType);
@@ -104,6 +114,8 @@ public class AwsS3Service implements S3Service {
     }
     
     @Override
+    @CircuitBreaker(name = "s3Service", fallbackMethod = "fallbackDeleteFile")
+    @Retry(name = "s3Service")
     public boolean deleteFile(String key) {
         try {
             logger.debug("Deleting file from S3 with key: {}", key);
@@ -124,6 +136,8 @@ public class AwsS3Service implements S3Service {
     }
     
     @Override
+    @CircuitBreaker(name = "s3Service", fallbackMethod = "fallbackFileExists")
+    @Retry(name = "s3Service")
     public boolean fileExists(String key) {
         try {
             logger.debug("Checking if file exists in S3 with key: {}", key);
@@ -147,6 +161,8 @@ public class AwsS3Service implements S3Service {
     }
 
     @Override
+    @CircuitBreaker(name = "s3Service", fallbackMethod = "fallbackListFiles")
+    @Retry(name = "s3Service")
     public List<String> listFiles(String prefix) {
         logger.debug("Listing files in S3 with prefix: {}", prefix);
         
@@ -165,8 +181,48 @@ public class AwsS3Service implements S3Service {
             logger.debug("Found {} files in S3 with prefix: {}", keys.size(), prefix);
         } catch (Exception e) {
             logger.error("Failed to list files in S3 with prefix: {}", prefix, e);
+            return Collections.emptyList(); // Return empty list on failure
         }
         
         return keys;
+    }
+
+    // Fallback methods
+    public URL fallbackGeneratePresignedUploadUrl(String key, String contentType, Duration expiration, Throwable t) {
+        logger.error("S3 Fallback: Could not generate presigned upload URL for key: {}. Reason: {}", key, t.getMessage());
+        try {
+            return new URL("http://fallback.url/error"); // Return a dummy or error URL
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    public URL fallbackGeneratePresignedDownloadUrl(String key, Duration expiration, Throwable t) {
+        logger.error("S3 Fallback: Could not generate presigned download URL for key: {}. Reason: {}", key, t.getMessage());
+        try {
+            return new URL("http://fallback.url/error"); // Return a dummy or error URL
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    public boolean fallbackUploadFile(String key, InputStream content, String contentType, Throwable t) {
+        logger.error("S3 Fallback: Could not upload file for key: {}. Reason: {}", key, t.getMessage());
+        return false;
+    }
+
+    public boolean fallbackDeleteFile(String key, Throwable t) {
+        logger.error("S3 Fallback: Could not delete file for key: {}. Reason: {}", key, t.getMessage());
+        return false;
+    }
+
+    public boolean fallbackFileExists(String key, Throwable t) {
+        logger.error("S3 Fallback: Could not check existence for key: {}. Reason: {}", key, t.getMessage());
+        return false; // Or true, depending on desired behavior (e.g., assume exists to prevent re-processing)
+    }
+
+    public List<String> fallbackListFiles(String prefix, Throwable t) {
+        logger.error("S3 Fallback: Could not list files for prefix: {}. Reason: {}", prefix, t.getMessage());
+        return Collections.emptyList();
     }
 }

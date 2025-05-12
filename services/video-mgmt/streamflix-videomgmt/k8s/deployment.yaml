@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-management-service
+  labels:
+    app: video-management-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: video-management-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: video-management-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: video-management-service
+          image: ${DOCKER_REGISTRY}/streamflix-video-mgmt:${VERSION}
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: video-mgmt-db-secrets
+                  key: jdbc-url
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: video-mgmt-db-secrets
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: video-mgmt-db-secrets
+                  key: password
+            - name: S3_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: video-mgmt-config
+                  key: s3-endpoint
+            - name: S3_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: video-mgmt-config
+                  key: s3-region
+            - name: S3_BUCKET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: video-mgmt-config
+                  key: s3-bucket-name
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: video-mgmt-s3-secrets
+                  key: access-key
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: video-mgmt-s3-secrets
+                  key: secret-key
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: video-mgmt-config
+                  key: kafka-servers
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: video-mgmt-config
+                  key: redis-host
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: video-mgmt-config
+                  key: redis-port
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: video-mgmt-jwt-secrets
+                  key: jwt-secret
+            # JVM tuning options
+            - name: JAVA_OPTS
+              value: "-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dumps"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 20
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
+            - name: heap-dumps
+              mountPath: /dumps
+      volumes:
+        - name: tmp-volume
+          emptyDir: {}
+        - name: heap-dumps
+          emptyDir: {}
+      terminationGracePeriodSeconds: 60

@@ -1,10 +1,13 @@
 package com.streamflix.video.infrastructure.security;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Custom implementation of Spring Security's UserDetails to represent an authenticated user.
@@ -20,6 +23,27 @@ public class SecurityUser implements UserDetails {
     private final boolean accountNonLocked;
     private final boolean credentialsNonExpired;
     private final boolean enabled;
+
+    /**
+     * Constructor used by JwtAuthenticationFilter for JWT token authentication
+     * @param username the username
+     * @param roles list of roles
+     * @param enabled whether the account is enabled
+     */
+    public SecurityUser(String username, List<String> roles, boolean enabled) {
+        this(
+            username, // Using username as ID since we don't have actual ID
+            username,
+            "", // No password for JWT auth
+            roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toList()),
+            true,
+            true,
+            true,
+            enabled
+        );
+    }
 
     public SecurityUser(
             String id,

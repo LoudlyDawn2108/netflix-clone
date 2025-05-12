@@ -1,12 +1,27 @@
 package com.streamflix.video.domain;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Index;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Table(name = "videos")
-public class Video {
+@Table(name = "videos", indexes = {
+    @Index(name = "idx_video_title", columnList = "title"),
+    @Index(name = "idx_video_release_year", columnList = "release_year"),
+    @Index(name = "idx_video_language", columnList = "language"),
+    @Index(name = "idx_video_status", columnList = "status"),
+    @Index(name = "idx_video_created_at", columnList = "created_at"),
+    @Index(name = "idx_video_category_id", columnList = "category_id")
+})
+@NamedEntityGraph(
+    name = "Video.withCategoryAndThumbnails",
+    attributeNodes = {
+        @NamedAttributeNode("category"),
+        @NamedAttributeNode("thumbnails")
+    }
+)
+public class Video implements MultiTenantEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -16,6 +31,9 @@ public class Video {
 
     @Column(length = 2000)
     private String description;
+
+    @Column(name = "tenant_id", nullable = false)
+    private UUID tenantId;
 
     @ElementCollection
     @CollectionTable(name = "video_tags", joinColumns = @JoinColumn(name = "video_id"))
@@ -44,16 +62,49 @@ public class Video {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "user_id")
+    private UUID userId;
+    
+    @Column(name = "contains_personal_data")
+    private boolean containsPersonalData = false;
+    
+    @Column(name = "is_anonymized")
+    private boolean isAnonymized = false;    
+    
+    @Column(name = "archived")
+    private boolean archived = false;
+    
+    @Column(name = "archived_at")
+    private LocalDateTime archivedAt;
+    
+    @Column(name = "archive_storage_location")
+    private String archiveStorageLocation;
+    
+    @Column(name = "storage_location")
+    private String storageLocation;
+
     // Default constructor for JPA
     protected Video() {}
     
     // Constructor for creating new videos
-    public Video(String title, String description) {
+    public Video(String title, String description, UUID tenantId, UUID userId) {
         this.title = title;
         this.description = description;
         this.status = VideoStatus.PENDING;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.tenantId = tenantId;
+        this.userId = userId;
+    }
+    
+    // Constructor without user ID
+    public Video(String title, String description, UUID tenantId) {
+        this(title, description, tenantId, null);
+    }
+    
+    // Legacy constructor for backward compatibility
+    public Video(String title, String description) {
+        this(title, description, null, null); // Default to null tenant ID and user ID
     }
 
     // Getters and setters
@@ -140,6 +191,25 @@ public class Video {
         thumbnail.setVideo(null);
         this.updateLastModifiedDate();
     }
+    
+    /**
+     * Remove a thumbnail by its ID
+     * @param thumbnailId The ID of the thumbnail to remove
+     * @return true if the thumbnail was found and removed, false otherwise
+     */
+    public boolean removeThumbnailById(UUID thumbnailId) {
+        Iterator<Thumbnail> iterator = this.thumbnails.iterator();
+        while (iterator.hasNext()) {
+            Thumbnail thumbnail = iterator.next();
+            if (thumbnail.getId() != null && thumbnail.getId().equals(thumbnailId)) {
+                iterator.remove();
+                thumbnail.setVideo(null);
+                this.updateLastModifiedDate();
+                return true;
+            }
+        }
+        return false;
+    }
 
     public VideoStatus getStatus() {
         return status;
@@ -156,6 +226,70 @@ public class Video {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
+    }
+    
+    public void setTenantId(UUID tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+    
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+    
+    public boolean isContainsPersonalData() {
+        return containsPersonalData;
+    }
+    
+    public void setContainsPersonalData(boolean containsPersonalData) {
+        this.containsPersonalData = containsPersonalData;
+    }
+    
+    public boolean isAnonymized() {
+        return isAnonymized;
+    }
+    
+    public void setAnonymized(boolean anonymized) {
+        isAnonymized = anonymized;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
+    public LocalDateTime getArchivedAt() {
+        return archivedAt;
+    }
+
+    public void setArchivedAt(LocalDateTime archivedAt) {
+        this.archivedAt = archivedAt;
+    }
+
+    public String getArchiveStorageLocation() {
+        return archiveStorageLocation;
+    }
+
+    public void setArchiveStorageLocation(String archiveStorageLocation) {
+        this.archiveStorageLocation = archiveStorageLocation;
+    }
+
+    public String getStorageLocation() {
+        return storageLocation;
+    }
+
+    public void setStorageLocation(String storageLocation) {
+        this.storageLocation = storageLocation;
     }
 
     private void updateLastModifiedDate() {

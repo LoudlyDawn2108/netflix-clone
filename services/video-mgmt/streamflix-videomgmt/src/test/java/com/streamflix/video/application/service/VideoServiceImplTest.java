@@ -5,6 +5,7 @@ import com.streamflix.video.domain.*;
 import com.streamflix.video.domain.exception.CategoryNotFoundException;
 import com.streamflix.video.domain.exception.ValidationException;
 import com.streamflix.video.domain.exception.VideoNotFoundException;
+import com.streamflix.video.infrastructure.metrics.VideoServiceMetrics;
 import com.streamflix.video.presentation.dto.VideoFilterParams;
 import com.streamflix.video.util.TestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,9 @@ class VideoServiceImplTest {
 
     @Mock
     private VideoEventPublisher eventPublisher;
+
+    @Mock
+    private VideoServiceMetrics metrics;
 
     @InjectMocks
     private VideoServiceImpl videoService;
@@ -135,13 +139,16 @@ class VideoServiceImplTest {
 
     @Nested
     @DisplayName("Get video tests")
-    class GetVideoTests {
-
-        @Test
+    class GetVideoTests {        @Test
         @DisplayName("Should get video by valid ID")
         void shouldGetVideoByValidId() {
             // Arrange
             when(videoRepository.findById(validVideoId)).thenReturn(Optional.of(testVideo));
+            
+            doAnswer(invocation -> {
+                java.util.function.Supplier<?> supplier = invocation.getArgument(0);
+                return supplier.get();
+            }).when(metrics).recordExecution(any(java.util.function.Supplier.class));
             
             // Act
             Optional<Video> result = videoService.getVideo(validVideoId);
@@ -149,14 +156,17 @@ class VideoServiceImplTest {
             // Assert
             assertTrue(result.isPresent());
             assertEquals(testVideo, result.get());
-        }
-
-        @Test
+        }        @Test
         @DisplayName("Should return empty when video not found")
         void shouldReturnEmptyWhenVideoNotFound() {
             // Arrange
             UUID nonExistentId = UUID.randomUUID();
             when(videoRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+            
+            doAnswer(invocation -> {
+                java.util.function.Supplier<?> supplier = invocation.getArgument(0);
+                return supplier.get();
+            }).when(metrics).recordExecution(any(java.util.function.Supplier.class));
             
             // Act
             Optional<Video> result = videoService.getVideo(nonExistentId);
