@@ -1,0 +1,6 @@
+@Streamflix.Transcoding.API_HostAddress = http://localhost:5222
+
+GET {{Streamflix.Transcoding.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
