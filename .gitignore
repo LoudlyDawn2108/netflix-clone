@@ -1,7 +1,13 @@
 node_modules
-services/video-mgmt/streamflix-videomgmt/build/*
+services/video-mgmt/streamflix-videomgmt/build
 
-services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Infrastructure/obj/*
-services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Infrastructure/bin/*
-services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/obj/*
-services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/bin/*
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Infrastructure/obj
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Infrastructure/bin
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/obj
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/bin
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Core/obj
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Core/bin
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Worker/obj
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Worker/bin
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Tests/obj
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Tests/bin
