@@ -1,0 +1,8 @@
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\bin\Debug\net9.0\.msCoverageSourceRootsMapping_Streamflix.Transcoding.Tests
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\bin\Debug\net9.0\CoverletSourceRootsMapping_Streamflix.Transcoding.Tests
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\obj\Debug\net9.0\Streamflix.Transcoding.Tests.csproj.AssemblyReference.cache
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\obj\Debug\net9.0\Streamflix.Transcoding.Tests.GeneratedMSBuildEditorConfig.editorconfig
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\obj\Debug\net9.0\Streamflix.Transcoding.Tests.AssemblyInfoInputs.cache
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\obj\Debug\net9.0\Streamflix.Transcoding.Tests.AssemblyInfo.cs
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\obj\Debug\net9.0\Streamflix.Transcoding.Tests.csproj.CoreCompileInputs.cache
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.Tests\obj\Debug\net9.0\Streamflix.Transcoding.Tests.sourcelink.json

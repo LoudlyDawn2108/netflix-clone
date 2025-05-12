@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Streamflix.Transcoding.Core.Interfaces;
 using Streamflix.Transcoding.Infrastructure.Data;
 using Streamflix.Transcoding.Infrastructure.Extensions;
 using Streamflix.Transcoding.Infrastructure.Services;

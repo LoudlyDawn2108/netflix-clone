@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Streamflix.Transcoding.API.Models;
 using Streamflix.Transcoding.Core.Interfaces;
+using Streamflix.Transcoding.Core.Models;
 
 namespace Streamflix.Transcoding.API.Controllers;
 
@@ -36,7 +37,7 @@ public class TranscodingJobsController : ControllerBase
             var jobs = await _repository.GetJobsAsync();
             
             // Apply filters if provided
-            if (!string.IsNullOrEmpty(status) && Enum.TryParse<Core.Entities.JobStatus>(status, true, out var jobStatus))
+            if (!string.IsNullOrEmpty(status) && Enum.TryParse<TranscodingJobStatus>(status, true, out var jobStatus))
             {
                 jobs = jobs.Where(j => j.Status == jobStatus);
             }
@@ -52,11 +53,11 @@ public class TranscodingJobsController : ControllerBase
                 VideoId = j.VideoId,
                 Status = j.Status.ToString(),
                 CreatedAt = j.CreatedAt,
-                StartedAt = j.StartedAt,
-                CompletedAt = j.CompletedAt,
+                UpdatedAt = j.UpdatedAt,
                 ErrorMessage = j.ErrorMessage,
-                Attempts = j.Attempts,
-                TenantId = j.TenantId
+                RetryCount = j.RetryCount,
+                TenantId = j.TenantId,
+                OutputManifestS3Path = j.OutputManifestS3Path
             });
             
             return Ok(result);
@@ -104,13 +105,12 @@ public class TranscodingJobsController : ControllerBase
                 VideoId = job.VideoId,
                 Status = job.Status.ToString(),
                 CreatedAt = job.CreatedAt,
-                StartedAt = job.StartedAt,
-                CompletedAt = job.CompletedAt,
+                UpdatedAt = job.UpdatedAt,
                 ErrorMessage = job.ErrorMessage,
-                Attempts = job.Attempts,
+                RetryCount = job.RetryCount,
                 TenantId = job.TenantId,
-                InputPath = job.InputPath,
-                OutputBasePath = job.OutputBasePath,
+                InputFileS3Path = job.InputFileS3Path,
+                OutputManifestS3Path = job.OutputManifestS3Path,
                 Renditions = renditionResponses
             };
             
@@ -129,11 +129,11 @@ public class TranscodingJobsController : ControllerBase
     [HttpGet("by-video/{videoId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TranscodingJobDetailResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetJobByVideoId(Guid videoId)
+    public async Task<IActionResult> GetJobByVideoId(Guid videoId, [FromQuery] string tenantId = "default")
     {
         try
         {
-            var job = await _repository.GetJobByVideoIdAsync(videoId);
+            var job = await _repository.GetJobByVideoIdAsync(videoId, tenantId);
             
             if (job == null)
             {
@@ -159,13 +159,12 @@ public class TranscodingJobsController : ControllerBase
                 VideoId = job.VideoId,
                 Status = job.Status.ToString(),
                 CreatedAt = job.CreatedAt,
-                StartedAt = job.StartedAt,
-                CompletedAt = job.CompletedAt,
+                UpdatedAt = job.UpdatedAt,
                 ErrorMessage = job.ErrorMessage,
-                Attempts = job.Attempts,
+                RetryCount = job.RetryCount,
                 TenantId = job.TenantId,
-                InputPath = job.InputPath,
-                OutputBasePath = job.OutputBasePath,
+                InputFileS3Path = job.InputFileS3Path,
+                OutputManifestS3Path = job.OutputManifestS3Path,
                 Renditions = renditionResponses
             };
             
@@ -235,7 +234,7 @@ public class TranscodingJobsController : ControllerBase
                 return NotFound();
             }
             
-            if (job.Status != Core.Entities.JobStatus.Pending && job.Status != Core.Entities.JobStatus.Processing)
+            if (job.Status != TranscodingJobStatus.Received && job.Status != TranscodingJobStatus.Processing)
             {
                 return BadRequest($"Cannot abort job with status {job.Status}");
             }
@@ -272,10 +271,10 @@ public class TranscodingJobsController : ControllerBase
             var statistics = new JobStatistics
             {
                 TotalJobs = jobs.Count(),
-                PendingJobs = jobs.Count(j => j.Status == Core.Entities.JobStatus.Pending),
-                ProcessingJobs = jobs.Count(j => j.Status == Core.Entities.JobStatus.Processing),
-                CompletedJobs = jobs.Count(j => j.Status == Core.Entities.JobStatus.Completed || j.Status == Core.Entities.JobStatus.Notified),
-                FailedJobs = jobs.Count(j => j.Status == Core.Entities.JobStatus.Failed)
+                PendingJobs = jobs.Count(j => j.Status == TranscodingJobStatus.Received),
+                ProcessingJobs = jobs.Count(j => j.Status == TranscodingJobStatus.Processing),
+                CompletedJobs = jobs.Count(j => j.Status == TranscodingJobStatus.Completed || j.Status == TranscodingJobStatus.Notified),
+                FailedJobs = jobs.Count(j => j.Status == TranscodingJobStatus.Failed)
             };
             
             return Ok(statistics);

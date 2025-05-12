@@ -10,11 +10,9 @@ D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.T
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
-D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.HealthChecks.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Abstractions.dll
-D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
@@ -162,3 +160,15 @@ D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.T
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Streamflix.Transcoding.API.xml
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\bin\Debug\net8.0\Xabe.FFmpeg.Downloader.dll
+D:\BTAP\fff\netflix-clone\services\transcoding\stream-trancoding-v1\Streamflix.Transcoding.API\obj\Debug\net8.0\Streamflix.Transcoding.API.xml

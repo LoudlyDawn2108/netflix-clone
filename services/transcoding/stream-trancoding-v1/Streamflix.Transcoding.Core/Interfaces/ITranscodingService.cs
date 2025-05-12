@@ -1,5 +1,8 @@
 using Streamflix.Transcoding.Core.Entities;
 using Streamflix.Transcoding.Core.Events;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Streamflix.Transcoding.Core.Interfaces;
 
@@ -10,14 +13,14 @@ public interface ITranscodingService
     /// </summary>
     /// <param name="videoEvent">The video uploaded event</param>
     /// <returns>The created transcoding job</returns>
-    Task<TranscodingJob> ProcessVideoAsync(VideoUploadedEvent videoEvent);
+    Task<TranscodingJob> ProcessVideoAsync(VideoUploaded videoEvent);
     
     /// <summary>
     /// Generates a VideoTranscoded event from a completed transcoding job
     /// </summary>
     /// <param name="jobId">The job ID</param>
     /// <returns>The video transcoded event</returns>
-    Task<VideoTranscodedEvent> GenerateTranscodedEventAsync(Guid jobId);
+    Task<VideoTranscoded> GenerateTranscodedEventAsync(Guid jobId);
     
     /// <summary>
     /// Checks if a job is already being processed

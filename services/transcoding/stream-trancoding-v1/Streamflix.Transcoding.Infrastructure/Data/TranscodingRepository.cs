@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Streamflix.Transcoding.Core.Entities;
 using Streamflix.Transcoding.Core.Interfaces;
+using Streamflix.Transcoding.Core.Models;
 
 namespace Streamflix.Transcoding.Infrastructure.Data;
 
@@ -22,13 +23,14 @@ public class TranscodingRepository : ITranscodingRepository
     {
         try
         {
-            // Check for existing job with same VideoId for idempotency
+            // Check for existing job with same VideoId and TenantId for idempotency
             var existingJob = await _dbContext.TranscodingJobs
-                .FirstOrDefaultAsync(j => j.VideoId == job.VideoId);
+                .FirstOrDefaultAsync(j => j.VideoId == job.VideoId && j.TenantId == job.TenantId);
                 
             if (existingJob != null)
             {
-                _logger.LogInformation("Job for video {VideoId} already exists with ID {JobId}", job.VideoId, existingJob.Id);
+                _logger.LogInformation("Job for video {VideoId} and tenant {TenantId} already exists with ID {JobId}", 
+                    job.VideoId, job.TenantId, existingJob.Id);
                 return existingJob;
             }
             
@@ -39,8 +41,8 @@ public class TranscodingRepository : ITranscodingRepository
             }
             
             job.CreatedAt = DateTime.UtcNow;
-            job.Status = JobStatus.Pending;
-            job.Attempts = 0;
+            job.UpdatedAt = DateTime.UtcNow;
+            job.Status = TranscodingJobStatus.Received;
 
             await _dbContext.TranscodingJobs.AddAsync(job);
             await _dbContext.SaveChangesAsync();
@@ -60,7 +62,6 @@ public class TranscodingRepository : ITranscodingRepository
         try
         {
             return await _dbContext.TranscodingJobs
-                .Include(j => j.Renditions)
                 .FirstOrDefaultAsync(j => j.Id == id);
         }
         catch (Exception ex)
@@ -70,22 +71,21 @@ public class TranscodingRepository : ITranscodingRepository
         }
     }
 
-    public async Task<TranscodingJob?> GetJobByVideoIdAsync(Guid videoId)
+    public async Task<TranscodingJob?> GetJobByVideoIdAsync(Guid videoId, string tenantId)
     {
         try
         {
             return await _dbContext.TranscodingJobs
-                .Include(j => j.Renditions)
-                .FirstOrDefaultAsync(j => j.VideoId == videoId);
+                .FirstOrDefaultAsync(j => j.VideoId == videoId && j.TenantId == tenantId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to retrieve transcoding job for video {VideoId}", videoId);
+            _logger.LogError(ex, "Failed to retrieve transcoding job for video {VideoId} and tenant {TenantId}", videoId, tenantId);
             throw;
         }
     }
 
-    public async Task<IEnumerable<TranscodingJob>> GetJobsByStatusAsync(JobStatus status, int limit = 100)
+    public async Task<IEnumerable<TranscodingJob>> GetJobsByStatusAsync(TranscodingJobStatus status, int limit = 100)
     {
         try
         {
@@ -101,11 +101,27 @@ public class TranscodingRepository : ITranscodingRepository
             throw;
         }
     }
+    
+    public async Task<IEnumerable<TranscodingJob>> GetJobsAsync()
+    {
+        try
+        {
+            return await _dbContext.TranscodingJobs
+                .OrderByDescending(j => j.CreatedAt)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve all transcoding jobs");
+            throw;
+        }
+    }
 
     public async Task<TranscodingJob> UpdateJobAsync(TranscodingJob job)
     {
         try
         {
+            job.UpdatedAt = DateTime.UtcNow;
             _dbContext.TranscodingJobs.Update(job);
             await _dbContext.SaveChangesAsync();
             
@@ -119,7 +135,7 @@ public class TranscodingRepository : ITranscodingRepository
         }
     }
 
-    public async Task<bool> UpdateJobStatusAsync(Guid id, JobStatus status, string? errorMessage = null)
+    public async Task<bool> UpdateJobStatusAsync(Guid id, TranscodingJobStatus status, string? errorMessage = null)
     {
         try
         {
@@ -131,22 +147,13 @@ public class TranscodingRepository : ITranscodingRepository
             }
 
             job.Status = status;
-            
-            // Update timestamps based on status
-            if (status == JobStatus.Processing && !job.StartedAt.HasValue)
-            {
-                job.StartedAt = DateTime.UtcNow;
-            }
-            else if ((status == JobStatus.Completed || status == JobStatus.Failed) && !job.CompletedAt.HasValue)
-            {
-                job.CompletedAt = DateTime.UtcNow;
-            }
+            job.UpdatedAt = DateTime.UtcNow;
             
             // Update error message if provided
-            if (!string.IsNullOrEmpty(errorMessage) && status == JobStatus.Failed)
+            if (!string.IsNullOrEmpty(errorMessage) && status == TranscodingJobStatus.Failed)
             {
                 job.ErrorMessage = errorMessage;
-                job.Attempts += 1;
+                job.RetryCount += 1;
             }
 
             await _dbContext.SaveChangesAsync();

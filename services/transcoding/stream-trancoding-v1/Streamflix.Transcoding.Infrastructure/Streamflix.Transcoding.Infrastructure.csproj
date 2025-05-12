@@ -22,6 +22,7 @@
     <PackageReference Include="Polly" Version="8.5.2" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
     <PackageReference Include="Xabe.FFmpeg" Version="6.0.1" />
+    <PackageReference Include="Xabe.FFmpeg.Downloader" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>

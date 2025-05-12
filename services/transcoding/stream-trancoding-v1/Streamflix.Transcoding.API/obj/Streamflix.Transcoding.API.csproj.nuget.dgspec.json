@@ -273,6 +273,10 @@
             "Xabe.FFmpeg": {
               "target": "Package",
               "version": "[6.0.1, )"
+            },
+            "Xabe.FFmpeg.Downloader": {
+              "target": "Package",
+              "version": "[6.0.1, )"
             }
           },
           "imports": [

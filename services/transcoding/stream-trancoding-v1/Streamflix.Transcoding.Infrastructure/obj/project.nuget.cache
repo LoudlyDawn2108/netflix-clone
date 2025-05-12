@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "hoavlR5mLh0=",
+  "dgSpecHash": "LrQHV/LIFU8=",
   "success": true,
   "projectFilePath": "d:\\BTAP\\fff\\netflix-clone\\services\\transcoding\\stream-trancoding-v1\\Streamflix.Transcoding.Infrastructure\\Streamflix.Transcoding.Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -67,7 +67,8 @@
     "C:\\Users\\haini\\.nuget\\packages\\system.text.encodings.web\\9.0.4\\system.text.encodings.web.9.0.4.nupkg.sha512",
     "C:\\Users\\haini\\.nuget\\packages\\system.text.json\\9.0.4\\system.text.json.9.0.4.nupkg.sha512",
     "C:\\Users\\haini\\.nuget\\packages\\system.threading.channels\\7.0.0\\system.threading.channels.7.0.0.nupkg.sha512",
-    "C:\\Users\\haini\\.nuget\\packages\\xabe.ffmpeg\\6.0.1\\xabe.ffmpeg.6.0.1.nupkg.sha512"
+    "C:\\Users\\haini\\.nuget\\packages\\xabe.ffmpeg\\6.0.1\\xabe.ffmpeg.6.0.1.nupkg.sha512",
+    "C:\\Users\\haini\\.nuget\\packages\\xabe.ffmpeg.downloader\\6.0.1\\xabe.ffmpeg.downloader.6.0.1.nupkg.sha512"
   ],
   "logs": []
 }

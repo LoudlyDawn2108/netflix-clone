@@ -20,7 +20,8 @@
           "Polly": "8.5.2",
           "StackExchange.Redis": "2.8.37",
           "Streamflix.Transcoding.Core": "1.0.0",
-          "Xabe.FFmpeg": "6.0.1"
+          "Xabe.FFmpeg": "6.0.1",
+          "Xabe.FFmpeg.Downloader": "6.0.1"
         },
         "runtime": {
           "Streamflix.Transcoding.Infrastructure.dll": {}
@@ -898,6 +899,17 @@
           }
         }
       },
+      "Xabe.FFmpeg.Downloader/6.0.1": {
+        "dependencies": {
+          "Xabe.FFmpeg": "6.0.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Xabe.FFmpeg.Downloader.dll": {
+            "assemblyVersion": "6.0.1.0",
+            "fileVersion": "6.0.1.0"
+          }
+        }
+      },
       "Streamflix.Transcoding.Core/1.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.4"
@@ -1364,6 +1376,13 @@
       "sha512": "sha512-QvPEyASVFL9UkPHVn3GQlYYPJvVMvcBCVLM/rNGdGNvkRbG4g9x45XEQduYOv/hxYmY5XVcZUyg/hwuuRDO5Zw==",
       "path": "xabe.ffmpeg/6.0.1",
       "hashPath": "xabe.ffmpeg.6.0.1.nupkg.sha512"
+    },
+    "Xabe.FFmpeg.Downloader/6.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-teUGXVYIkIsNiKat7ed0XJsLk/pUzmJ1ugwig/vHjTrjoPyFixgo57iG1m7t9XwXf7JOkKxXysDEUKbBEBtINA==",
+      "path": "xabe.ffmpeg.downloader/6.0.1",
+      "hashPath": "xabe.ffmpeg.downloader.6.0.1.nupkg.sha512"
     },
     "Streamflix.Transcoding.Core/1.0.0": {
       "type": "project",

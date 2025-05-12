@@ -8,17 +8,17 @@ public class TranscodingJobResponse
     public Guid VideoId { get; set; }
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
-    public DateTime? StartedAt { get; set; }
-    public DateTime? CompletedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
     public string? ErrorMessage { get; set; }
-    public int Attempts { get; set; }
-    public string? TenantId { get; set; }
+    public int RetryCount { get; set; }
+    public string TenantId { get; set; } = string.Empty;
+    public string? OutputManifestS3Path { get; set; }
 }
 
 public class TranscodingJobDetailResponse : TranscodingJobResponse
 {
-    public string InputPath { get; set; } = string.Empty;
-    public string OutputBasePath { get; set; } = string.Empty;
+    public string InputFileS3Path { get; set; } = string.Empty;
+    public string? OutputManifestS3Path { get; set; }
     public List<RenditionResponse> Renditions { get; set; } = new List<RenditionResponse>();
 }
 

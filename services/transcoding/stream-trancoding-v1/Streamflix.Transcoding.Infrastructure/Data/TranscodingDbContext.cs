@@ -21,18 +21,19 @@ public class TranscodingDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.VideoId).IsRequired();
-            entity.Property(e => e.InputPath).IsRequired().HasMaxLength(1024);
-            entity.Property(e => e.OutputBasePath).IsRequired().HasMaxLength(1024);
+            entity.Property(e => e.InputFileS3Path).IsRequired().HasMaxLength(1024);
             entity.Property(e => e.Status).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
-            entity.Property(e => e.Attempts).HasDefaultValue(0);
-            entity.Property(e => e.TenantId).HasMaxLength(256);
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            entity.Property(e => e.RetryCount).HasDefaultValue(0);
+            entity.Property(e => e.TenantId).HasMaxLength(256).IsRequired();
             entity.Property(e => e.ErrorMessage).HasMaxLength(2048);
+            entity.Property(e => e.OutputManifestS3Path).HasMaxLength(1024);
             
-            // Create index on VideoId for uniqueness check
-            entity.HasIndex(e => e.VideoId)
+            // Create index on VideoId and TenantId for uniqueness check
+            entity.HasIndex(e => new { e.VideoId, e.TenantId })
                 .IsUnique()
-                .HasDatabaseName("IX_TranscodingJobs_VideoId");
+                .HasDatabaseName("IX_TranscodingJobs_VideoId_TenantId");
                 
             // Create index on Status for efficient querying
             entity.HasIndex(e => e.Status)
@@ -52,7 +53,7 @@ public class TranscodingDbContext : DbContext
             
             // Configure relationship with TranscodingJob
             entity.HasOne(e => e.TranscodingJob)
-                .WithMany(j => j.Renditions)
+                .WithMany(r => r.Renditions)
                 .HasForeignKey(e => e.TranscodingJobId)
                 .OnDelete(DeleteBehavior.Cascade);
                 
