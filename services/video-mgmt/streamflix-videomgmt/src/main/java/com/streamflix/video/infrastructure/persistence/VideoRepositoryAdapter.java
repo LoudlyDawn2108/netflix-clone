@@ -94,6 +94,11 @@ public class VideoRepositoryAdapter implements VideoRepository {
         return jpaRepository.count(spec);
     }
     
+    @Override
+    public Optional<Video> findByThumbnailId(UUID thumbnailId) {
+        return jpaRepository.findByThumbnailId(thumbnailId);
+    }
+    
     /**
      * Create a Pageable object from filter parameters
      * 

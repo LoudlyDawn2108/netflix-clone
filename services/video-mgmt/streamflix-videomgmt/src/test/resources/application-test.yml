@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    # Use fixed credentials for test database
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: true
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    com.streamflix: DEBUG
+    com.streamflix.video.infrastructure.multitenancy: DEBUG
+    com.streamflix.video.infrastructure.partitioning: DEBUG
+    com.streamflix.video.infrastructure.archiving: DEBUG
+    com.streamflix.video.infrastructure.gdpr: DEBUG
+
+# Disable security for tests
+security:
+  enabled: false
+
+# Multi-tenancy and enterprise features configuration for tests
+app:
+  multitenancy:
+    enabled: true
+    default-tenant-id: 00000000-0000-0000-0000-000000000000
+    header-name: X-Tenant-ID
+  
+  partitioning:
+    enabled: false
+    
+  archiving:
+    enabled: true
+    s3:
+      bucket-name: test-archive-bucket
+      region: us-east-1
+      endpoint-override: http://localhost:4566
+    
+  gdpr:
+    enabled: true
+    anonymization-retention-days: 30
+    personal-data-retention-months: 24

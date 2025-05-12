@@ -49,9 +49,9 @@ Client -> API Gateway -> Video Mgmt Service
 
 ## How To Use These Instructions
 
-1. Complete each instruction set fully before moving to the next
-2. Validate your work after completing each set
-3. Each set is designed to be a self-contained unit of work
+1. Complete each instruction fully before moving to the next
+2. Validate your work after completing each set by running docker build
+3. Your implementation should intergrate nicely with the current code base
 4. Keep the README.md open as a reference for specifications
 
 ---

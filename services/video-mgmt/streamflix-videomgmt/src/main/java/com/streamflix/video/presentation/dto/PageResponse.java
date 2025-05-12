@@ -1,5 +1,7 @@
 package com.streamflix.video.presentation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -8,14 +10,30 @@ import org.springframework.data.domain.Page;
  * Wrapper for paginated API responses.
  * @param <T> Type of content in the page
  */
+@Schema(description = "Paginated response wrapper for collections of items")
 public class PageResponse<T> {
+    @Schema(description = "List of items on the current page")
     private List<T> content;
+    
+    @Schema(description = "Total number of items across all pages", example = "42")
     private long totalElements;
+    
+    @Schema(description = "Total number of pages", example = "5")
     private int totalPages;
+    
+    @Schema(description = "Current page number (0-based)", example = "0")
     private int currentPage;
+    
+    @Schema(description = "Number of items per page", example = "10")
     private int pageSize;
+    
+    @Schema(description = "Whether this is the first page", example = "true")
     private boolean first;
+    
+    @Schema(description = "Whether this is the last page", example = "false")
     private boolean last;
+    
+    @Schema(description = "Whether the page is empty", example = "false")
     private boolean empty;
 
     // Default constructor

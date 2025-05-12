@@ -1,0 +1,209 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "7.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "JVM Heap Memory Usage",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{area=\"heap\", app=\"video-management-service\"}",
+          "legendFormat": "Used"
+        },
+        {
+          "expr": "jvm_memory_committed_bytes{area=\"heap\", app=\"video-management-service\"}",
+          "legendFormat": "Committed"
+        },
+        {
+          "expr": "jvm_memory_max_bytes{area=\"heap\", app=\"video-management-service\"}",
+          "legendFormat": "Max"
+        }
+      ]
+    },
+    {
+      "title": "JVM CPU Usage",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "process_cpu_usage{app=\"video-management-service\"}",
+          "legendFormat": "Process CPU Usage"
+        },
+        {
+          "expr": "system_cpu_usage{app=\"video-management-service\"}",
+          "legendFormat": "System CPU Usage"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Request Rate (Total)",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{app=\"video-management-service\"}[5m])) by (uri, method, outcome, status)",
+          "legendFormat": "{{method}} {{uri}} - {{status}} ({{outcome}})"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Request Latency (95th Percentile)",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{app=\"video-management-service\"}[5m])) by (le, uri, method))",
+          "legendFormat": "{{method}} {{uri}}"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Error Rate (4xx & 5xx)",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{app=\"video-management-service\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{app=\"video-management-service\"}[5m])) * 100",
+          "legendFormat": "5xx Error Rate (%)"
+        },
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{app=\"video-management-service\", status=~\"4..\"}[5m])) / sum(rate(http_server_requests_seconds_count{app=\"video-management-service\"}[5m])) * 100",
+          "legendFormat": "4xx Error Rate (%)"
+        }
+      ]
+    },
+    {
+      "title": "HikariCP Connection Pool Usage",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{app=\"video-management-service\", pool=\"HikariPool-Primary\"}",
+          "legendFormat": "Active (Primary)"
+        },
+        {
+          "expr": "hikaricp_connections_idle{app=\"video-management-service\", pool=\"HikariPool-Primary\"}",
+          "legendFormat": "Idle (Primary)"
+        },
+        {
+          "expr": "hikaricp_connections_pending{app=\"video-management-service\", pool=\"HikariPool-Primary\"}",
+          "legendFormat": "Pending (Primary)"
+        },
+        {
+          "expr": "hikaricp_connections_active{app=\"video-management-service\", pool=\"HikariPool-Replica\"}",
+          "legendFormat": "Active (Replica)"
+        },
+        {
+          "expr": "hikaricp_connections_idle{app=\"video-management-service\", pool=\"HikariPool-Replica\"}",
+          "legendFormat": "Idle (Replica)"
+        },
+        {
+          "expr": "hikaricp_connections_pending{app=\"video-management-service\", pool=\"HikariPool-Replica\"}",
+          "legendFormat": "Pending (Replica)"
+        }
+      ]
+    },
+    {
+      "title": "Redis Cache Metrics",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(rate(cache_gets_total{cache_manager=\"cacheManager\", name=~\".*\", result=\"hit\", app=\"video-management-service\"}[5m])) by (name)",
+          "legendFormat": "Cache Hits {{name}}"
+        },
+        {
+          "expr": "sum(rate(cache_gets_total{cache_manager=\"cacheManager\", name=~\".*\", result=\"miss\", app=\"video-management-service\"}[5m])) by (name)",
+          "legendFormat": "Cache Misses {{name}}"
+        },
+        {
+          "expr": "sum(rate(cache_puts_total{cache_manager=\"cacheManager\", name=~\".*\", app=\"video-management-service\"}[5m])) by (name)",
+          "legendFormat": "Cache Puts {{name}}"
+        },
+        {
+          "expr": "sum(rate(cache_evictions_total{cache_manager=\"cacheManager\", name=~\".*\", app=\"video-management-service\"}[5m])) by (name)",
+          "legendFormat": "Cache Evictions {{name}}"
+        }
+      ]
+    },
+    {
+      "title": "Kafka Producer Send Rate",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum(rate(kafka_producer_send_total{app=\"video-management-service\"}[5m])) by (topic)",
+          "legendFormat": "Send rate {{topic}}"
+        }
+      ]
+    },
+    {
+      "title": "Kafka Consumer Fetch Rate",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum(rate(kafka_consumer_fetch_total{app=\"video-management-service\"}[5m])) by (topic, group_id)",
+          "legendFormat": "Fetch rate {{topic}} ({{group_id}})"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": ["spring-boot", "video-management-service"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Video Management Service Dashboard",
+  "uid": "video-mgmt-svc",
+  "version": 1
+}

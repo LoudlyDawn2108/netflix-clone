@@ -1,6 +1,6 @@
 # Video Management Service
 
-Handles video metadata lifecycle, ingestion triggers, and thumbnail management.
+Handles video metadata lifecycle, ingestion triggers, thumbnail management, and enterprise-grade features.
 
 ## Technology Stack
 
@@ -17,6 +17,9 @@ Handles video metadata lifecycle, ingestion triggers, and thumbnail management.
 -   **Observability**: Micrometer, Spring Actuator, OpenTelemetry
 -   **Migration**: Flyway for database migrations
 -   **Containerization**: Docker, Kubernetes with Helm charts
+-   **Multi-tenancy**: Custom tenant isolation through query filtering
+-   **Partitioning**: PostgreSQL table partitioning for scalability
+-   **Archiving**: Tiered storage with automated data lifecycle
 
 ## Responsibilities
 
@@ -25,6 +28,9 @@ Handles video metadata lifecycle, ingestion triggers, and thumbnail management.
 -   Orchestrate thumbnail generation
 -   Publish domain events for downstream services
 -   Basic filtering and pagination for video metadata queries
+-   Multi-tenant data isolation
+-   GDPR compliance features (data export, right to be forgotten)
+-   Automated data archiving and retention policies
 
 ## API Endpoints
 
@@ -127,6 +133,7 @@ public enum VideoStatus {
 -   Application layer with use cases/service interfaces
 -   Infrastructure layer with repositories, messaging, and external service adapters
 -   Presentation layer with REST controllers and DTOs
+-   Workflow orchestration with Spring Statemachine for video processing
 
 #### Boundary & Data Flow
 
@@ -190,6 +197,7 @@ public enum VideoStatus {
 -   Health checks: Spring Boot Actuator
 -   Tracing: OpenTelemetry with Jaeger exporter
 -   Application Performance Monitoring with Spring Cloud Sleuth
+-   Workflow Monitoring: State machine tracking, state transition metrics, and retry tracking
 
 #### CI/CD & Testing
 
@@ -199,6 +207,41 @@ public enum VideoStatus {
 -   SonarQube for code quality analysis
 -   Contract testing with Spring Cloud Contract
 
+## Video Processing Workflow
+
+The Video Management Service uses Spring Statemachine to coordinate the complex workflow of video processing:
+
+![Video Processing Workflow](https://mermaid.ink/img/pako:eNqVVM1u2zAMvuspcHc5Ll6K9ihkSZDehhQLil07YEg8O8IsyZDoNEX67iOTOFkDz-0hMCj--Prox5YRsBlmbOgsAXecvnBj7LodQ8fqWiBIKcHTE2hpuwuaDkf6Ds8cDTIq5aRVF0StubU2uNElbVC1cIeupaOy8M9OSZAGn9AtcPxWoL7mXfxXM6wg7Q81aW4biOXVq_Po2sMJGd5hTS4MdqDF7DRooh-moG_2SM0s7BGkLvuahbZnn0pwJFM_ezIzx2CwaYNCOaYbZ7vbWEqbp4GjLqAb1B1uLelbKkhE2-AvOjc59ZM03Fpy5DZVniGLx1gimcmWFD0Pp7LSi4eVW_aXXYSlT8KKRCmrOyepp546kE1k8wMfKYObztjUvqI9yQ7Sbd6esAWu4XJzR9S7lK8qe0haG_TFUaB1tqdQriw-foevBc5XrL7CJ-wgPjdKn55WJUtZBhQwtUA0r4HJa9IQLjzFkPuemZAHfTnJhCPd2boiZHnuLgXMh3vY1453CKcwa_NxICykw4xFUyB_xnzBY8H8IRXsI_mmObtQrcLZm_S-oiy-lRKv6V-ttSONoKUuI_kCM2dvS14HzP9tshv6qbIicPPpZX9oOcNZlO2j0YrAfz7dfqNnFhY2p-LkxWKYVTTxme4CdpYTdhlGDpJ_8dlHR62v-q-tdJ-2OWPn0FQSLY4Z81wOLuTDRXfGitR7Pyjnx_3N30EPcw)
+
+### Workflow States
+
+1. **PENDING** - Initial state when video metadata is created
+2. **UPLOADED** - Raw video file is uploaded to storage
+3. **VALIDATING** - Validating video format and integrity
+4. **TRANSCODING** - Video is being converted to streaming formats
+5. **EXTRACTING_METADATA** - Extracting technical metadata
+6. **GENERATING_THUMBNAILS** - Creating thumbnail images
+7. **READY** - Video is fully processed and ready for streaming
+8. **FAILED** - Processing has failed at some stage
+9. **DELETED** - Video has been marked for deletion
+
+### Key Workflow Features
+
+-   Event-driven state transitions
+-   Persistent state machine with database backing
+-   Automatic retry mechanism for failed processing
+-   Compensating transactions for cleanup
+-   Monitoring via metrics and status endpoints
+
+### Workflow Monitoring API
+
+| Method | Path                                | Description                                  |
+| ------ | ----------------------------------- | -------------------------------------------- |
+| GET    | /api/v1/workflow/{videoId}/status   | Get current workflow status for a video      |
+| GET    | /api/v1/workflow/summary            | Get count of videos in each workflow state   |
+| POST   | /api/v1/workflow/{videoId}/retry    | Manually retry processing for a failed video |
+| POST   | /api/v1/workflow/{videoId}/rollback | Manually trigger cleanup for a video         |
+
 ## End-to-End Flow
 
 ```mermaid
@@ -206,6 +249,7 @@ sequenceDiagram
     participant Client
     participant API_Gateway as API Gateway
     participant VideoMgmt as Video Management Service
+    participant StateMachine as Workflow State Machine
     participant PostgreSQL as Videos DB
     participant S3 as Object Storage
     participant Kafka as Message Bus
@@ -219,6 +263,7 @@ sequenceDiagram
         API_Gateway->>VideoMgmt: CRUD or basic filter operation
         VideoMgmt->>PostgreSQL: Execute JPA/SQL
         VideoMgmt->>S3: Upload/Retrieve assets
+        VideoMgmt->>StateMachine: Update workflow state
         VideoMgmt-->>API_Gateway: Return results
     else Complex Search
         API_Gateway->>SearchService: Forward search request
@@ -228,6 +273,8 @@ sequenceDiagram
 
     VideoMgmt->>Kafka: Publish VideoCreated/Updated/Deleted
     Kafka->>TranscodingService: Consume VideoCreated
+    TranscodingService->>VideoMgmt: Report transcoding progress/completion
+    VideoMgmt->>StateMachine: Update workflow state
     Kafka->>CatalogService: Consume VideoCreated
     Kafka->>SearchService: Consume metadata changes
 ```
@@ -251,9 +298,84 @@ git clone https://github.com/streamflix/video-service.git
 docker-compose up
 ```
 
+## Deployment
+
+### Kubernetes Deployment
+
+The Video Management Service is designed to be deployed in a Kubernetes environment. Two deployment options are available:
+
+1. **Kubernetes Manifests**: Raw Kubernetes YAML files in the `k8s/` directory
+2. **Helm Chart**: A Helm chart is available in the `helm/video-mgmt/` directory
+
+For detailed deployment instructions, please refer to:
+
+-   [Kubernetes Deployment Guide](./k8s/README.md)
+-   [Helm Chart Documentation](./helm/video-mgmt/README.md)
+
+#### Key Deployment Features
+
+-   **High Availability**: Multiple replicas with pod disruption budgets
+-   **Auto-scaling**: Horizontal Pod Autoscaler based on CPU and memory metrics
+-   **Resource Management**: Configurable resource requests and limits
+-   **Health Checks**: Liveness, readiness, and startup probes
+-   **Observability**: Prometheus metrics, health endpoints, and structured logging
+-   **Security**: JWT authentication, TLS, and secrets management
+
+For a complete production deployment guide, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
 ## Reference Documentation
 
 -   [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
 -   [Spring Data JPA](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
 -   [Spring Cloud Stream](https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/)
 -   [AWS SDK for Java](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html)
+
+## Enterprise Features
+
+### Multi-tenancy
+
+The Video Management Service supports full multi-tenancy:
+
+-   **Tenant Identification**: Uses the `X-Tenant-ID` header to identify tenants
+-   **Data Isolation**: Enforces tenant boundaries at the database level
+-   **Tenant Filtering**: Automatically filters all repository operations by tenant
+-   **Default Tenant**: Provides a default tenant for backward compatibility
+
+### Data Partitioning
+
+Database tables are partitioned by tenant for scalability and performance:
+
+-   **Hash Partitioning**: Videos, categories, and thumbnails are partitioned by tenant ID
+-   **Partition Management**: Automatic partition creation for new tenants
+-   **Performance**: Improved query performance for large datasets
+
+### Data Archiving & Retention
+
+Enterprise-grade data lifecycle management:
+
+-   **Configurable Retention**: Retention periods based on tenant subscription level
+-   **Tiered Storage**: Videos move from hot storage to cold storage based on age
+-   **Scheduled Archiving**: Automatic daily archiving of old/deleted content
+-   **Cost Optimization**: Utilizes S3 storage classes for cost efficiency
+
+### GDPR Compliance
+
+Built-in features for data privacy regulation compliance:
+
+-   **Right to Access**: API to export user's personal data in structured format
+-   **Right to Erasure**: Secure data anonymization process with grace period
+-   **Consent Management**: Tracking of user consent for data processing
+-   **Activity Logging**: Comprehensive audit trail of all data processing
+-   **Data Minimization**: Automatic purging of unnecessary data
+
+## Enterprise API Endpoints
+
+| Method | Path                              | Description                        |
+| ------ | --------------------------------- | ---------------------------------- |
+| GET    | /api/v1/gdpr/export/{userId}      | Export user's personal data (GDPR) |
+| POST   | /api/v1/gdpr/anonymize/{userId}   | Request user data anonymization    |
+| POST   | /api/v1/admin/tenants             | Create a new tenant                |
+| GET    | /api/v1/admin/tenants             | List all tenants                   |
+| GET    | /api/v1/admin/tenants/{id}        | Get tenant details                 |
+| PUT    | /api/v1/admin/tenants/{id}        | Update tenant subscription level   |
+| PUT    | /api/v1/admin/tenants/{id}/status | Activate or deactivate a tenant    |

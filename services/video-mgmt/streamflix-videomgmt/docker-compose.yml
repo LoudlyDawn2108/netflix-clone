@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
     postgres:
         image: postgres:16-alpine
@@ -70,29 +68,41 @@ services:
                 ]
             interval: 30s
             timeout: 10s
-            retries: 3
-
-    # Application service (uncomment after building the application)
-    # video-service:
-    #   build: .
-    #   container_name: streamflix-video-service
-    #   depends_on:
-    #     postgres:
-    #       condition: service_healthy
-    #     kafka:
-    #       condition: service_healthy
-    #     minio:
-    #       condition: service_healthy
-    #   environment:
-    #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/streamflix_videos
-    #     SPRING_PROFILES_ACTIVE: dev
-    #     KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-    #     S3_ENDPOINT: http://minio:9000
-    #     S3_ACCESS_KEY: minioadmin
-    #     S3_SECRET_KEY: minioadmin
-    #   ports:
-    #     - "8080:8080"
-    #   entrypoint: ["/wait-for-it.sh", "postgres:5432", "--", "java", "-jar", "app.jar"]
+            retries: 3 # Application service (uncomment after building the application)
+    video-mgmt-service:
+        build: .
+        container_name: streamflix-video-mgmt-service
+        depends_on:
+            postgres:
+                condition: service_healthy
+            kafka:
+                condition: service_healthy
+            minio:
+                condition: service_healthy
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/streamflix_videos
+            SPRING_PROFILES_ACTIVE: dev
+            SPRING_JPA_HIBERNATE_DDL_AUTO: none
+            SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: true
+            SPRING_FLYWAY_ENABLED: true
+            SPRING_FLYWAY_BASELINE_ON_MIGRATE: true
+            KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+            S3_ENDPOINT: http://minio:9000
+            S3_ACCESS_KEY: minioadmin
+            S3_SECRET_KEY: minioadmin
+        ports:
+            - "8080:8080"
+        entrypoint:
+            [
+                "/wait-for-it.sh",
+                "postgres:5432",
+                "--",
+                "java",
+                "-Djava.security.egd=file:/dev/./urandom",
+                "-XX:MaxRAMPercentage=75.0",
+                "-jar",
+                "app.jar",
+            ]
 
 volumes:
     postgres_data:

@@ -1,6 +1,7 @@
 package com.streamflix.video.presentation.dto;
 
 import com.streamflix.video.domain.VideoStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 import java.util.UUID;
@@ -9,17 +10,37 @@ import java.util.UUID;
  * Data Transfer Object for filtering videos with various parameters.
  * This class captures all possible filter parameters from API requests.
  */
+@Schema(description = "Parameters for filtering and sorting videos")
 public class VideoFilterParams {
 
+    @Schema(description = "Filter by video title (partial match)", example = "Marvel")
     private String title;
+    
+    @Schema(description = "Filter by category ID", example = "f67e6d3e-9a0c-4e95-b552-d6842e80c986")
     private UUID categoryId;
+    
+    @Schema(description = "Filter by exact release year", example = "2023")
     private Integer year;
+    
+    @Schema(description = "Filter by language code", example = "en")
     private String language;
+    
+    @Schema(description = "Filter by one or more tags", example = "[\"action\", \"adventure\"]")
     private List<String> tags;
+    
+    @Schema(description = "Filter by processing status", example = "READY")
     private VideoStatus status;
+    
+    @Schema(description = "Filter by minimum release year", example = "2020")
     private Integer minYear;
+    
+    @Schema(description = "Filter by maximum release year", example = "2025")
     private Integer maxYear;
+    
+    @Schema(description = "Field to sort by", example = "releaseYear", allowableValues = {"title", "releaseYear", "createdAt", "updatedAt"})
     private String sortBy;
+    
+    @Schema(description = "Direction of sorting", example = "desc", allowableValues = {"asc", "desc"})
     private String sortDirection;
 
     // Default constructor

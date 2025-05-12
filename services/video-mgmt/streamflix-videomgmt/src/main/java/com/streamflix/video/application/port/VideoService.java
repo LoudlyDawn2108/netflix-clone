@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Service interface for video management operations.
@@ -22,16 +23,16 @@ public interface VideoService {
      * @param description The video description
      * @param categoryId The ID of the category (optional)
      * @param tags The set of tags for the video (optional)
-     * @return The created video entity
+     * @return A CompletableFuture containing the created Video.
      */
-    Video createVideo(String title, String description, UUID categoryId, Set<String> tags);
+    CompletableFuture<Video> createVideo(String title, String description, UUID categoryId, Set<String> tags);
 
     /**
      * Retrieve a video by its ID
      * @param id The video ID
-     * @return Optional containing the video if found
+     * @return A CompletableFuture containing an Optional with the Video if found, or an empty Optional otherwise.
      */
-    Optional<Video> getVideo(UUID id);
+    CompletableFuture<Optional<Video>> getVideo(UUID id);
 
     /**
      * Update the metadata for an existing video
@@ -41,66 +42,66 @@ public interface VideoService {
      * @param categoryId The new category ID (optional, null to leave unchanged)
      * @param releaseYear The new release year (optional, null to leave unchanged)
      * @param language The new language (optional, null to leave unchanged)
-     * @return The updated video entity or empty if not found
+     * @return A CompletableFuture containing an Optional with the updated Video if found and updated, or an empty Optional otherwise.
      */
-    Optional<Video> updateVideo(UUID id, String title, String description, UUID categoryId, 
+    CompletableFuture<Optional<Video>> updateVideo(UUID id, String title, String description, UUID categoryId, 
                                 Integer releaseYear, String language);
-
-    /**
-     * Update the tags for a video
-     * @param id The video ID
-     * @param tags The new set of tags
-     * @return The updated video entity or empty if not found
-     */
-    Optional<Video> updateVideoTags(UUID id, Set<String> tags);
 
     /**
      * Delete a video by its ID
      * @param id The video ID
-     * @return true if the video was deleted, false if not found
+     * @return A CompletableFuture containing true if the video was deleted, false otherwise.
      */
-    boolean deleteVideo(UUID id);
+    CompletableFuture<Boolean> deleteVideo(UUID id);
 
     /**
      * Update the status of a video
      * @param id The video ID
      * @param status The new status
-     * @return The updated video or empty if not found
+     * @return A CompletableFuture containing an Optional with the updated Video if found and status updated, or an empty Optional otherwise.
      */
-    Optional<Video> updateVideoStatus(UUID id, VideoStatus status);
+    CompletableFuture<Optional<Video>> updateVideoStatus(UUID id, VideoStatus status);
 
+    /**
+     * Update the tags for a video
+     * @param id The video ID
+     * @param tags The new set of tags
+     * @return A CompletableFuture containing an Optional with the updated Video if found and tags updated, or an empty Optional otherwise.
+     */
+    CompletableFuture<Optional<Video>> updateVideoTags(UUID id, Set<String> tags);
+
+    /**
+     * List all videos with pagination
+     * @param page The page number (0-based)
+     * @param size The page size
+     * @return A CompletableFuture containing a List of Videos for the requested page.
+     */
+    CompletableFuture<List<Video>> listVideos(int page, int size);
+    
     /**
      * Find videos by category
      * @param categoryId The category ID
      * @param page The page number (0-based)
      * @param size The page size
-     * @return List of videos in the category
+     * @return A CompletableFuture containing a List of Videos in the given category for the requested page.
      */
-    List<Video> findVideosByCategory(UUID categoryId, int page, int size);
+    CompletableFuture<List<Video>> findVideosByCategory(UUID categoryId, int page, int size);
 
     /**
      * Find videos by tag
      * @param tag The tag to search for
      * @param page The page number (0-based)
      * @param size The page size
-     * @return List of videos with the tag
+     * @return A CompletableFuture containing a List of Videos with the given tag for the requested page.
      */
-    List<Video> findVideosByTag(String tag, int page, int size);
-
-    /**
-     * List all videos with pagination
-     * @param page The page number (0-based)
-     * @param size The page size
-     * @return List of videos for the requested page
-     */
-    List<Video> listVideos(int page, int size);
+    CompletableFuture<List<Video>> findVideosByTag(String tag, int page, int size);
     
     /**
      * Find videos by filter parameters with pagination and sorting
      * @param filterParams The filter parameters
      * @param page The page number (0-based)
      * @param size The page size
-     * @return Page of videos matching the filter criteria
+     * @return A CompletableFuture containing a Page of Videos matching the filter criteria.
      */
-    Page<Video> findByFilterParams(VideoFilterParams filterParams, int page, int size);
+    CompletableFuture<Page<Video>> findByFilterParams(VideoFilterParams filterParams, int page, int size);
 }

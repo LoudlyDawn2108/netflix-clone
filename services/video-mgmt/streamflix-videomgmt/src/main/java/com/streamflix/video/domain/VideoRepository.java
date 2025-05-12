@@ -95,4 +95,42 @@ public interface VideoRepository {
      * @return Number of videos matching the filter criteria
      */
     long countByFilterParams(VideoFilterParams filterParams);
+
+    /**
+     * Updates the status of multiple videos in a batch.
+     * @param videoIds The list of video IDs to update.
+     * @param newStatus The new status to set.
+     * @return The number of videos updated.
+     */
+    int batchUpdateStatus(List<UUID> videoIds, VideoStatus newStatus);
+
+    /**
+     * Find a video by thumbnail ID
+     * @param thumbnailId The thumbnail ID
+     * @return Optional containing the video if found
+     */
+    Optional<Video> findByThumbnailId(UUID thumbnailId);
+
+    /**
+     * Find videos by user ID
+     * @param userId The user ID
+     * @return List of videos owned by the user
+     */
+    List<Video> findByUserId(UUID userId);
+
+    /**
+     * Find videos that have been archived
+     * @param page The page number (0-based)
+     * @param size The page size
+     * @return List of archived videos
+     */
+    List<Video> findArchivedVideos(int page, int size);
+    
+    /**
+     * Find videos older than the specified date for archiving
+     * @param date The cutoff date
+     * @param tenantId The tenant ID
+     * @return List of videos older than the specified date
+     */
+    List<Video> findVideosOlderThan(java.time.LocalDateTime date, UUID tenantId);
 }

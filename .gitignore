@@ -1,4 +1,5 @@
 node_modules
+<<<<<<< HEAD
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/bin/Debug/net8.0/appsettings.json
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/bin/Debug/net8.0/Microsoft.AspNetCore.OpenApi.dll
@@ -322,3 +323,40 @@ services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/obj/Debug/n
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/obj/Debug/net8.0/Streamflix.Transcoding.API.sourcelink.json
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/obj/Debug/net8.0/ref/Streamflix.Transcoding.API.dll
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.API/obj/Debug/net8.0/refint/Streamflix.Transcoding.API.dll
+=======
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/index.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.application.service.VideoServiceImplTest$CreateVideoTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.application.service.VideoServiceImplTest$DeleteVideoTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.application.service.VideoServiceImplTest$FilterAndSearchTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.application.service.VideoServiceImplTest$GetVideoTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.application.service.VideoServiceImplTest$UpdateVideoStatusTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.application.service.VideoServiceImplTest$UpdateVideoTagsTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.application.service.VideoServiceImplTest$UpdateVideoTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.domain.VideoTest.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.domain.VideoTest$StatusTransitionTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.domain.VideoTest$TagTests.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.infrastructure.repository.JpaVideoRepositoryIntegrationTest.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/classes/com.streamflix.video.presentation.controller.VideoControllerIntegrationTest.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/css/base-style.css
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/css/style.css
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/js/report.js
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/packages/com.streamflix.video.application.service.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/packages/com.streamflix.video.domain.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/packages/com.streamflix.video.infrastructure.repository.html
+services/video-mgmt/streamflix-videomgmt/build/reports/tests/test/packages/com.streamflix.video.presentation.controller.html
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.application.service.VideoServiceImplTest$CreateVideoTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.application.service.VideoServiceImplTest$DeleteVideoTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.application.service.VideoServiceImplTest$FilterAndSearchTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.application.service.VideoServiceImplTest$GetVideoTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.application.service.VideoServiceImplTest$UpdateVideoStatusTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.application.service.VideoServiceImplTest$UpdateVideoTagsTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.application.service.VideoServiceImplTest$UpdateVideoTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.domain.VideoTest.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.domain.VideoTest$StatusTransitionTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.domain.VideoTest$TagTests.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.infrastructure.repository.JpaVideoRepositoryIntegrationTest.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/TEST-com.streamflix.video.presentation.controller.VideoControllerIntegrationTest.xml
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/binary/output.bin
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/binary/output.bin.idx
+services/video-mgmt/streamflix-videomgmt/build/test-results/test/binary/results.bin
+>>>>>>> f960f52ceef4372b53c34f149be5d9834e584c61
