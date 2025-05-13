@@ -42,16 +42,16 @@ To ensure consistency, maintainability, and collaboration, please adhere to the 
     -   Write clear and concise comments to explain complex logic or non-obvious decisions.
     -   Use XML documentation comments for all public APIs, classes, and methods.
     -   Keep comments and documentation up-to-date with code changes.
--   **Committing Code:**
-    -   Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for commit messages (e.g., `feat: add user authentication`, `fix: resolve issue with video processing`).
-    -   Make small, atomic commits that represent a single logical change.
-    -   Ensure the code builds and all tests pass before pushing changes.
 -   **Dependency Management:**
     -   Keep NuGet packages updated to their latest stable versions, unless there's a specific reason not to.
     -   Minimize dependencies in the Core project.
 -   **Configuration:**
     -   Use the `IOptions` pattern for accessing configuration settings.
     -   Store sensitive configuration values securely (e.g., using user secrets in development, Azure Key Vault or similar in production).
+
+## IMPORTANT RULE MUST CONFORM
+
+-   When using any method or function please make sure that it exist before using and make sure that the parameter and argument are match if not please implement it or modify it appropriately with the code base
 
 ## Session Workflow
 
