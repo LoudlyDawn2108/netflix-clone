@@ -11,3 +11,5 @@ services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Worker/obj
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Worker/bin
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Tests/obj
 services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.Tests/bin
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.ControllerTests/obj
+services/transcoding/stream-trancoding-v1/Streamflix.Transcoding.ControllerTests/bin

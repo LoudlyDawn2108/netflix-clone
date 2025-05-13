@@ -7,11 +7,13 @@ using Streamflix.Transcoding.Infrastructure.Services;
 namespace Streamflix.Transcoding.Infrastructure.Extensions;
 
 public static class RedisExtensions
-{
-    public static IServiceCollection AddRedisServices(this IServiceCollection services, IConfiguration configuration)
+{    public static IServiceCollection AddRedisServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Register Redis distributed lock options
-        services.Configure<RedisDistributedLockOptions>(configuration.GetSection("Redis"));
+        services.Configure<RedisDistributedLockOptions>(options =>
+        {
+            configuration.GetSection("Redis").Bind(options);
+        });
         
         // Register Redis distributed lock service
         services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();

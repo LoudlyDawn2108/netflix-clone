@@ -52,11 +52,10 @@ namespace Streamflix.Transcoding.Worker.Handlers
                 }
             }
             catch (Exception ex)
-            {
+            {                
                 _logger.LogError(ex, "Error processing VideoUploaded event for VideoId: {VideoId}", videoUploadedEvent.VideoId);
                 throw;
             }
-        }
         }
     }
 }

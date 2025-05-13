@@ -8,6 +8,7 @@ using Streamflix.Transcoding.Core.Models;
 using Streamflix.Transcoding.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Streamflix.Transcoding.Tests.Services
         private readonly Mock<ITranscodingRepository> _repositoryMock;
         private readonly Mock<IS3StorageService> _s3StorageMock;
         private readonly Mock<IDistributedLockService> _lockServiceMock;
-        private readonly Mock<FFmpegTranscoder> _ffmpegTranscoderMock;
+        private readonly Mock<ITranscoder> _transcoderMock; // Changed to ITranscoder
         private readonly Mock<ILogger<TranscodingService>> _loggerMock;
         private readonly TranscodingServiceOptions _options;
         
@@ -27,7 +28,7 @@ namespace Streamflix.Transcoding.Tests.Services
             _repositoryMock = new Mock<ITranscodingRepository>();
             _s3StorageMock = new Mock<IS3StorageService>();
             _lockServiceMock = new Mock<IDistributedLockService>();
-            _ffmpegTranscoderMock = new Mock<FFmpegTranscoder>();
+            _transcoderMock = new Mock<ITranscoder>(); // Changed to ITranscoder
             _loggerMock = new Mock<ILogger<TranscodingService>>();
             
             _options = new TranscodingServiceOptions
@@ -82,7 +83,7 @@ namespace Streamflix.Transcoding.Tests.Services
                 _repositoryMock.Object,
                 _s3StorageMock.Object,
                 _lockServiceMock.Object,
-                _ffmpegTranscoderMock.Object,
+                _transcoderMock.Object, // Changed to ITranscoder
                 optionsMock.Object,
                 _loggerMock.Object);
                 
@@ -126,21 +127,21 @@ namespace Streamflix.Transcoding.Tests.Services
             _s3StorageMock.Setup(x => x.DownloadFileAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("local/path/source.mp4");
                 
-            // Set up FFmpeg transcoder to return some output files
-            _ffmpegTranscoderMock.Setup(x => x.TranscodeVideoAsync(
+            // Set up transcoder to return some output files
+            _transcoderMock.Setup(x => x.TranscodeVideoAsync(
                     It.IsAny<Guid>(),
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<IEnumerable<ITranscodingProfile>>(),
                     It.IsAny<int>(),
-                    default))
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Dictionary<ITranscodingProfile, string>
                 {
                     { _options.DefaultProfiles[0], "local/path/output/480p/480p.m3u8" }
                 });
                 
             // Set up HLS manifest creation
-            _ffmpegTranscoderMock.Setup(x => x.CreateHlsManifestAsync(
+            _transcoderMock.Setup(x => x.CreateHlsManifestAsync(
                     It.IsAny<Dictionary<ITranscodingProfile, string>>(),
                     It.IsAny<string>()))
                 .ReturnsAsync("local/path/output/master.m3u8");
@@ -160,7 +161,7 @@ namespace Streamflix.Transcoding.Tests.Services
                 _repositoryMock.Object,
                 _s3StorageMock.Object,
                 _lockServiceMock.Object,
-                _ffmpegTranscoderMock.Object,
+                _transcoderMock.Object, // Changed to ITranscoder
                 optionsMock.Object,
                 _loggerMock.Object);
                 
@@ -216,7 +217,7 @@ namespace Streamflix.Transcoding.Tests.Services
                 _repositoryMock.Object,
                 _s3StorageMock.Object,
                 _lockServiceMock.Object,
-                _ffmpegTranscoderMock.Object,
+                _transcoderMock.Object, // Changed to ITranscoder
                 optionsMock.Object,
                 _loggerMock.Object);
                 
@@ -230,7 +231,7 @@ namespace Streamflix.Transcoding.Tests.Services
             Assert.Equal(tenantId, result.TenantId);
             Assert.True(result.Success);
             Assert.Equal(job.OutputManifestS3Path, result.ManifestUrl);
-            Assert.NotEmpty(result.OutputDetails);
+            Assert.NotNull(result.OutputDetails);
         }
     }
 }

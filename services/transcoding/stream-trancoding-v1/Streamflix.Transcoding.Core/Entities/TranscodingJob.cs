@@ -16,6 +16,7 @@ namespace Streamflix.Transcoding.Core.Entities
         public string? OutputManifestS3Path { get; set; }
         public string? ErrorMessage { get; set; }
         public int RetryCount { get; set; }
+        public int NotificationAttempts { get; set; } = 0; // Added for tracking notification retries
         
         // Navigation property for Renditions
         public ICollection<Rendition> Renditions { get; set; } = new List<Rendition>();

@@ -1,4 +1,4 @@
-﻿namespace Streamflix.Transcoding.ControllerTests;
+namespace Streamflix.Transcoding.ControllerTests;
 
 public class UnitTest1
 {

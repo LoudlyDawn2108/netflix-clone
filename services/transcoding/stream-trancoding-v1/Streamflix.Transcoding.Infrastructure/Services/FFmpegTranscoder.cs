@@ -6,7 +6,7 @@ using Xabe.FFmpeg;
 
 namespace Streamflix.Transcoding.Infrastructure.Services;
 
-public class FFmpegTranscoder
+public class FFmpegTranscoder : ITranscoder
 {
     private readonly FFmpegService _ffmpegService;
     private readonly ILogger<FFmpegTranscoder> _logger;
@@ -40,10 +40,10 @@ public class FFmpegTranscoder
 
         // Ensure output directory exists
         Directory.CreateDirectory(outputDirectory);
-        
+
         // Get media info for the input file
         var mediaInfo = await FFmpeg.GetMediaInfo(inputPath);
-        
+
         _logger.LogInformation("Starting transcoding for job {JobId}. Input file: {InputPath}, Duration: {Duration}",
             jobId, inputPath, mediaInfo.Duration);
 
@@ -58,15 +58,15 @@ public class FFmpegTranscoder
             {
                 try
                 {
-                    string outputFilePath = await TranscodeToProfileAsync(jobId, inputPath, outputDirectory, profile, 
+                    string outputFilePath = await TranscodeToProfileAsync(jobId, inputPath, outputDirectory, profile,
                         mediaInfo, segmentDurationSeconds, cancellationToken);
-                    
+
                     lock (results)
                     {
                         results[profile] = outputFilePath;
                     }
-                    
-                    _logger.LogInformation("Completed transcoding to {Resolution} for job {JobId}", 
+
+                    _logger.LogInformation("Completed transcoding to {Resolution} for job {JobId}",
                         profile.Resolution, jobId);
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
@@ -79,13 +79,13 @@ public class FFmpegTranscoder
 
         // Wait for all transcoding tasks to complete
         await Task.WhenAll(tasks);
-        
+
         // Clean up progress tracking
         _ffmpegService.RemoveJobProgress(jobId);
-        
+
         return results;
     }
-    
+
     /// <summary>
     /// Creates HLS playlist and manifest files
     /// </summary>
@@ -97,29 +97,29 @@ public class FFmpegTranscoder
         string outputDirectory)
     {
         var masterManifestPath = Path.Combine(outputDirectory, "master.m3u8");
-        
+
         // Create the master playlist
         var masterContent = new StringBuilder();
         masterContent.AppendLine("#EXTM3U");
         masterContent.AppendLine("#EXT-X-VERSION:3");
-        
+
         // Add each rendition to the master playlist
         foreach (var kvp in renditionFiles)
         {
             var profile = kvp.Key;
             var path = kvp.Value;
             var filename = Path.GetFileName(path);
-            
+
             // Add the stream info
             masterContent.AppendLine($"#EXT-X-STREAM-INF:BANDWIDTH={profile.Bitrate},RESOLUTION={profile.Width}x{profile.Height}");
             masterContent.AppendLine(filename);
         }
-        
+
         await File.WriteAllTextAsync(masterManifestPath, masterContent.ToString());
-        
+
         return masterManifestPath;
     }
-    
+
     /// <summary>
     /// Creates DASH manifest
     /// </summary>
@@ -132,16 +132,16 @@ public class FFmpegTranscoder
     {
         // Ensure FFmpeg is initialized
         await _ffmpegService.InitializeAsync();
-        
+
         string outputPath = Path.Combine(outputDirectory, "manifest.mpd");
-        
+
         // Generate input parameters for FFmpeg
         var inputs = new List<string>();
         foreach (var filePath in renditionFiles.Values)
         {
             inputs.Add($"-i \"{filePath}\"");
         }
-        
+
         // Create FFmpeg conversion to generate the DASH manifest
         var conversion = FFmpeg.Conversions.New()
             .AddParameter(string.Join(" ", inputs))
@@ -153,11 +153,11 @@ public class FFmpegTranscoder
             .AddParameter("-init_seg_name init_$RepresentationID$.m4s")
             .AddParameter("-media_seg_name chunk_$RepresentationID$_$Number%05d$.m4s")
             .SetOutput(outputPath);
-        
+
         // Start the conversion
         _logger.LogInformation("Creating DASH manifest at {OutputPath}", outputPath);
         await conversion.Start();
-        
+
         return outputPath;
     }
 
@@ -175,52 +175,50 @@ public class FFmpegTranscoder
 
         // Create output file path for HLS playlist
         string outputPath = Path.Combine(profileOutputDir, $"{profile.Resolution}.m3u8");
-        
-        _logger.LogInformation("Starting transcoding to {Resolution} for job {JobId}. Output: {OutputPath}", 
-            profile.Resolution, jobId, outputPath);
-        
-        // Prepare the conversion
+
+        _logger.LogInformation("Starting transcoding to {Resolution} for job {JobId}. Output: {OutputPath}",
+            profile.Resolution, jobId, outputPath);        // Prepare the conversion
         var conversion = FFmpeg.Conversions.New()
             .AddStream(mediaInfo.VideoStreams.First())
             .AddStream(mediaInfo.AudioStreams.First())
             .SetOutput(outputPath)
-            .SetVideoCodec(profile.VideoCodec)
-            .SetAudioCodec(profile.AudioCodec)
-            .SetPixelFormat("yuv420p") // Widely compatible pixel format
-            .SetSize(profile.Width, profile.Height)
-            .SetVideoBitrate(profile.Bitrate)
+            .AddParameter($"-c:v {profile.VideoCodec}")
+            .AddParameter($"-c:a {profile.AudioCodec}")
+            .AddParameter($"-pix_fmt yuv420p") // Widely compatible pixel format
+            .AddParameter($"-s {profile.Width}x{profile.Height}")
+            .AddParameter($"-b:v {profile.Bitrate}")
             .SetOutputFormat("hls")
             .AddParameter($"-hls_time {segmentDurationSeconds}")
             .AddParameter("-hls_list_size 0") // Keep all segments in the playlist
-            .AddParameter("-hls_segment_filename", $"{profileOutputDir}/%03d.ts")
+            .AddParameter("-hls_segment_filename" + $"{profileOutputDir}/%03d.ts")
             .AddParameter("-hls_playlist_type vod")
             .AddParameter("-hls_flags independent_segments")
-            .AddParameter("-master_pl_name", "")  // Don't create a master playlist per profile
+            .AddParameter("-master_pl_name")  // Don't create a master playlist per profile
             .AddParameter("-threads 0"); // Use optimal number of threads
-            
+
         // Add any additional parameters from the profile
         foreach (var param in profile.AdditionalParameters)
         {
             conversion.AddParameter(param);
         }
-            
+
         // Add progress handler
         conversion.OnProgress += (sender, args) =>
         {
             // Update progress in the FFmpegService
             _ffmpegService.UpdateJobProgress(jobId, args.Percent / 100.0);
-            
+
             // Log progress at intervals to avoid log flooding
             if (args.Percent % 10 == 0 || args.Percent >= 99)
             {
-                _logger.LogInformation("Job {JobId} - {Resolution} progress: {Progress}%", 
+                _logger.LogInformation("Job {JobId} - {Resolution} progress: {Progress}%",
                     jobId, profile.Resolution, args.Percent);
             }
         };
-            
+
         // Start the conversion
         await conversion.Start(cancellationToken);
-            
+
         return outputPath;
     }
 }

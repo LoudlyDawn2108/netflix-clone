@@ -6,11 +6,13 @@ using Streamflix.Transcoding.Infrastructure.Services;
 namespace Streamflix.Transcoding.Infrastructure.Extensions;
 
 public static class FFmpegExtensions
-{
-    public static IServiceCollection AddFFmpegServices(this IServiceCollection services, IConfiguration configuration)
+{    public static IServiceCollection AddFFmpegServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Register FFmpeg options from configuration
-        services.Configure<FFmpegOptions>(configuration.GetSection("FFmpeg"));
+        services.Configure<FFmpegOptions>(options =>
+        {
+            configuration.GetSection("FFmpeg").Bind(options);
+        });
         
         // Register FFmpeg service
         services.AddSingleton<FFmpegService>();

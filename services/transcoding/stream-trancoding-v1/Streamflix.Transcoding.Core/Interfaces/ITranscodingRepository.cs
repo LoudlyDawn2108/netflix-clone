@@ -22,6 +22,8 @@ public interface ITranscodingRepository
     Task<IEnumerable<Rendition>> GetRenditionsForJobAsync(Guid jobId);
     Task<Rendition> UpdateRenditionAsync(Rendition rendition);
     Task<bool> UpdateRenditionStatusAsync(Guid id, RenditionStatus status);
+    // Add multiple renditions for a job
+    Task<IEnumerable<Rendition>> AddRenditionsAsync(IEnumerable<Rendition> renditions);
     
     // Transaction support
     Task<bool> SaveChangesAsync();

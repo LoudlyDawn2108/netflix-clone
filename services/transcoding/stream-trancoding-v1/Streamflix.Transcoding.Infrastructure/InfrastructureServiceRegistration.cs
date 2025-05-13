@@ -21,10 +21,11 @@ public static class InfrastructureServiceRegistration
         
         // Add FFmpeg services
         services.AddFFmpegServices(configuration);
-        
-        // Register the transcoding service
-        services.Configure<TranscodingServiceOptions>(
-            configuration.GetSection("TranscodingService"));
+          // Register the transcoding service
+        services.Configure<TranscodingServiceOptions>(options => 
+        {
+            configuration.GetSection("TranscodingService").Bind(options);
+        });
         services.AddScoped<ITranscodingService, TranscodingService>();
         
         return services;

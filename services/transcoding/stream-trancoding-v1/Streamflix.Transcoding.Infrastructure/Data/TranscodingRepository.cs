@@ -261,6 +261,35 @@ public class TranscodingRepository : ITranscodingRepository
             throw;
         }
     }
+
+    public async Task<IEnumerable<Rendition>> AddRenditionsAsync(IEnumerable<Rendition> renditions)
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            foreach (var rendition in renditions)
+            {
+                if (rendition.Id == Guid.Empty)
+                {
+                    rendition.Id = Guid.NewGuid();
+                }
+                
+                rendition.CreatedAt = now;
+                rendition.Status = RenditionStatus.Pending;
+            }
+            
+            await _dbContext.Renditions.AddRangeAsync(renditions);
+            await _dbContext.SaveChangesAsync();
+            
+            _logger.LogInformation("Added {Count} renditions to the database", renditions.Count());
+            return renditions;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add renditions to the database");
+            throw;
+        }
+    }
     
     #endregion
     

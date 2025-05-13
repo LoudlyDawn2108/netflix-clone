@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streamflix.Transcoding.API"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streamflix.Transcoding.Worker", "Streamflix.Transcoding.Worker\Streamflix.Transcoding.Worker.csproj", "{3E9BF5E1-EB4B-4E6B-B8DC-55373684EB97}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streamflix.Transcoding.Tests", "Streamflix.Transcoding.Tests\Streamflix.Transcoding.Tests.csproj", "{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streamflix.Transcoding.ControllerTests", "Streamflix.Transcoding.ControllerTests\Streamflix.Transcoding.ControllerTests.csproj", "{B3F4D2E7-6723-48E4-8A20-278F5C74561C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,30 @@ Global
 		{3E9BF5E1-EB4B-4E6B-B8DC-55373684EB97}.Release|x64.Build.0 = Release|Any CPU
 		{3E9BF5E1-EB4B-4E6B-B8DC-55373684EB97}.Release|x86.ActiveCfg = Release|Any CPU
 		{3E9BF5E1-EB4B-4E6B-B8DC-55373684EB97}.Release|x86.Build.0 = Release|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Debug|x64.Build.0 = Debug|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Debug|x86.Build.0 = Debug|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Release|x64.ActiveCfg = Release|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Release|x64.Build.0 = Release|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Release|x86.ActiveCfg = Release|Any CPU
+		{75A32B4D-F1E5-4EAF-A975-01C7B22A83C3}.Release|x86.Build.0 = Release|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Debug|x64.Build.0 = Debug|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Debug|x86.Build.0 = Debug|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Release|x64.ActiveCfg = Release|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Release|x64.Build.0 = Release|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Release|x86.ActiveCfg = Release|Any CPU
+		{B3F4D2E7-6723-48E4-8A20-278F5C74561C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
