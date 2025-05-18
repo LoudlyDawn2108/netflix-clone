@@ -6,6 +6,7 @@ using Streamflix.Transcoding.Core.Events;
 using Streamflix.Transcoding.Core.Interfaces;
 using Streamflix.Transcoding.Core.Models;
 using Streamflix.Transcoding.Infrastructure.Services;
+using Streamflix.Transcoding.Tests.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -118,33 +119,64 @@ namespace Streamflix.Transcoding.Tests.Services
                 .ReturnsAsync(true);
                 
             _repositoryMock.Setup(x => x.GetJobByVideoIdAsync(videoEvent.VideoId, videoEvent.TenantId))
-                .ReturnsAsync((TranscodingJob)null);
+                .ReturnsAsync((TranscodingJob?)null);
                 
             _repositoryMock.Setup(x => x.CreateJobAsync(It.IsAny<TranscodingJob>()))
+                .ReturnsAsync(newJob);            // Setup for AddRenditionsAsync
+            _repositoryMock.Setup(x => x.AddRenditionsAsync(It.IsAny<List<Rendition>>()))
+                .ReturnsAsync((List<Rendition> renditions) => renditions as IEnumerable<Rendition>);
+                
+            // Setup for UpdateRenditionAsync
+            _repositoryMock.Setup(x => x.UpdateRenditionAsync(It.IsAny<Rendition>()))
+                .ReturnsAsync((Rendition r) => r);
+                  // Setup for GetRenditionsForJobAsync
+            _repositoryMock.Setup(x => x.GetRenditionsForJobAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new List<Rendition> 
+                {
+                    new Rendition
+                    {
+                        Id = Guid.NewGuid(),
+                        TranscodingJobId = newJob.Id,
+                        Resolution = "480p",
+                        Bitrate = 1000000,
+                        Status = RenditionStatus.Pending
+                    }
+                });
+                
+            // Setup for UpdateJobAsync
+            _repositoryMock.Setup(x => x.UpdateJobAsync(It.IsAny<TranscodingJob>()))
                 .ReturnsAsync(newJob);
                 
-            // Set up S3 storage to return a local file path when downloading
+            // Setup for UpdateJobStatusAsync
+            _repositoryMock.Setup(x => x.UpdateJobStatusAsync(It.IsAny<Guid>(), It.IsAny<TranscodingJobStatus>()))
+                .ReturnsAsync(true);            // Set up S3 storage to return a local file path when downloading
             _s3StorageMock.Setup(x => x.DownloadFileAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("local/path/source.mp4");
                 
-            // Set up transcoder to return some output files
-            _transcoderMock.Setup(x => x.TranscodeVideoAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<IEnumerable<ITranscodingProfile>>(),
-                    It.IsAny<int>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Dictionary<ITranscodingProfile, string>
-                {
-                    { _options.DefaultProfiles[0], "local/path/output/480p/480p.m3u8" }
-                });
-                
-            // Set up HLS manifest creation
-            _transcoderMock.Setup(x => x.CreateHlsManifestAsync(
+            var outputDict = new Dictionary<ITranscodingProfile, string>
+            {
+                { _options.DefaultProfiles[0], "local/path/output/480p/480p.m3u8" }
+            };
+            
+            // Mock the transcoder using an action instead of a lambda expression
+            // This avoids the CS0854 error with optional parameters
+            Action<Mock<ITranscoder>> setup = mock =>
+            {
+                mock.Setup(
+                    x => x.TranscodeVideoAsync(
+                        It.IsAny<Guid>(),
+                        It.IsAny<string>(),
+                        It.IsAny<string>(),
+                        It.IsAny<IEnumerable<ITranscodingProfile>>()))
+                    .ReturnsAsync(outputDict);
+                    
+                mock.Setup(x => x.CreateHlsManifestAsync(
                     It.IsAny<Dictionary<ITranscodingProfile, string>>(),
                     It.IsAny<string>()))
                 .ReturnsAsync("local/path/output/master.m3u8");
+            };
+            
+            setup(_transcoderMock);
                 
             // Set up S3 upload to return true
             _s3StorageMock.Setup(x => x.UploadFileAsync(

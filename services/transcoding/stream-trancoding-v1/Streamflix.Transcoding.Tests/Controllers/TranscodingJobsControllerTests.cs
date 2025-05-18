@@ -121,7 +121,7 @@ namespace Streamflix.Transcoding.Tests.Controllers
             var jobId = Guid.NewGuid();
             
             _mockRepository.Setup(repo => repo.GetJobByIdAsync(jobId))
-                .ReturnsAsync((TranscodingJob)null);
+                .ReturnsAsync((TranscodingJob?)null);
                 
             // Act
             var result = await _controller.GetJob(jobId);
@@ -186,7 +186,7 @@ namespace Streamflix.Transcoding.Tests.Controllers
             var videoId = Guid.NewGuid();
             
             _mockRepository.Setup(repo => repo.GetJobByVideoIdAsync(videoId, "default"))
-                .ReturnsAsync((TranscodingJob)null);
+                .ReturnsAsync((TranscodingJob?)null);
                 
             // Act
             var result = await _controller.GetJobByVideoId(videoId);
@@ -215,13 +215,12 @@ namespace Streamflix.Transcoding.Tests.Controllers
 
             // Act
             var result = await _controller.AbortJob(jobId);
-
+            
             // Assert
             var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
-            // The controller returns an anonymous object, access its properties dynamically
-            dynamic response = okResult.Value;
-            string message = response.message;
-            message.Should().Be("Job aborted successfully");
+            // The controller returns an anonymous object
+            var responseValue = okResult.Value?.GetType().GetProperty("message")?.GetValue(okResult.Value, null) as string;
+            responseValue.Should().Be("Job aborted successfully");
         }
         
         [Fact]
@@ -231,7 +230,7 @@ namespace Streamflix.Transcoding.Tests.Controllers
             var jobId = Guid.NewGuid();
             
             _mockRepository.Setup(repo => repo.GetJobByIdAsync(jobId))
-                .ReturnsAsync((TranscodingJob)null);
+                .ReturnsAsync((TranscodingJob?)null);
                 
             // Act
             var result = await _controller.AbortJob(jobId);

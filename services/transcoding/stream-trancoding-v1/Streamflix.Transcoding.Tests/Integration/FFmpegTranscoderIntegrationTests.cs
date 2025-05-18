@@ -94,9 +94,11 @@ namespace Streamflix.Transcoding.Tests.Integration
             
             var outputFilePath = result[profiles[0]];
             Assert.True(File.Exists(outputFilePath), $"Output file {outputFilePath} should exist");
+              // Check that segments were created
+            string? directoryName = Path.GetDirectoryName(outputFilePath);
+            Assert.NotNull(directoryName);
             
-            // Check that segments were created
-            var segmentFiles = Directory.GetFiles(Path.GetDirectoryName(outputFilePath), "*.ts");
+            var segmentFiles = Directory.GetFiles(directoryName, "*.ts");
             Assert.NotEmpty(segmentFiles);
         }
 
@@ -129,11 +131,14 @@ namespace Streamflix.Transcoding.Tests.Integration
                     Path.Combine(_testDir, "720p", "720p.m3u8")
                 }
             };
-            
-            // Create directories and dummy files
+              // Create directories and dummy files
             foreach (var path in renditionFiles.Values)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                string? directoryName = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(directoryName))
+                {
+                    Directory.CreateDirectory(directoryName);
+                }
                 File.WriteAllText(path, "#EXTM3U\n#EXT-X-VERSION:3\n");
             }
             

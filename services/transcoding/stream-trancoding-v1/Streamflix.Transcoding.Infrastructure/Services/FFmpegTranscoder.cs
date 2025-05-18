@@ -84,9 +84,7 @@ public class FFmpegTranscoder : ITranscoder
         _ffmpegService.RemoveJobProgress(jobId);
 
         return results;
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Creates HLS playlist and manifest files
     /// </summary>
     /// <param name="renditionFiles">Dictionary of profiles to output paths</param>
@@ -108,19 +106,26 @@ public class FFmpegTranscoder : ITranscoder
         {
             var profile = kvp.Key;
             var path = kvp.Value;
-            var filename = Path.GetFileName(path);
+            
+            // Calculate the relative path from the master manifest to the rendition playlist
+            string renditionFilename = Path.GetFileName(path);
+            string renditionPath = $"{profile.Resolution}/{renditionFilename}";
 
             // Add the stream info
             masterContent.AppendLine($"#EXT-X-STREAM-INF:BANDWIDTH={profile.Bitrate},RESOLUTION={profile.Width}x{profile.Height}");
-            masterContent.AppendLine(filename);
+            masterContent.AppendLine(renditionPath);
+        }        // Ensure directory exists
+        string? directoryName = Path.GetDirectoryName(masterManifestPath);
+        if (!string.IsNullOrEmpty(directoryName))
+        {
+            Directory.CreateDirectory(directoryName);
         }
-
+        
+        // Write the manifest file
         await File.WriteAllTextAsync(masterManifestPath, masterContent.ToString());
 
         return masterManifestPath;
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Creates DASH manifest
     /// </summary>
     /// <param name="renditionFiles">Dictionary of profiles to output paths</param>
@@ -135,23 +140,24 @@ public class FFmpegTranscoder : ITranscoder
 
         string outputPath = Path.Combine(outputDirectory, "manifest.mpd");
 
-        // Generate input parameters for FFmpeg
-        var inputs = new List<string>();
+        // Create FFmpeg conversion to generate the DASH manifest
+        var conversion = FFmpeg.Conversions.New();
+        
+        // Add input files properly
         foreach (var filePath in renditionFiles.Values)
         {
-            inputs.Add($"-i \"{filePath}\"");
+            conversion.AddParameter($"-i \"{filePath}\"");
         }
 
-        // Create FFmpeg conversion to generate the DASH manifest
-        var conversion = FFmpeg.Conversions.New()
-            .AddParameter(string.Join(" ", inputs))
+        // Configure DASH output
+        conversion
             .AddParameter("-c copy")
             .AddParameter("-f dash")
             .AddParameter("-use_template 1")
             .AddParameter("-use_timeline 1")
-            .AddParameter($"-seg_duration {6}")
-            .AddParameter("-init_seg_name init_$RepresentationID$.m4s")
-            .AddParameter("-media_seg_name chunk_$RepresentationID$_$Number%05d$.m4s")
+            .AddParameter("-seg_duration 6")
+            .AddParameter("-init_seg_name \"init_$RepresentationID$.m4s\"")
+            .AddParameter("-media_seg_name \"chunk_$RepresentationID$_$Number%05d$.m4s\"")
             .SetOutput(outputPath);
 
         // Start the conversion
@@ -187,10 +193,9 @@ public class FFmpegTranscoder : ITranscoder
             .AddParameter($"-pix_fmt yuv420p") // Widely compatible pixel format
             .AddParameter($"-s {profile.Width}x{profile.Height}")
             .AddParameter($"-b:v {profile.Bitrate}")
-            .SetOutputFormat("hls")
-            .AddParameter($"-hls_time {segmentDurationSeconds}")
+            .SetOutputFormat("hls")            .AddParameter($"-hls_time {segmentDurationSeconds}")
             .AddParameter("-hls_list_size 0") // Keep all segments in the playlist
-            .AddParameter("-hls_segment_filename" + $"{profileOutputDir}/%03d.ts")
+            .AddParameter($"-hls_segment_filename \"{profileOutputDir}/%03d.ts\"")
             .AddParameter("-hls_playlist_type vod")
             .AddParameter("-hls_flags independent_segments")
             .AddParameter("-master_pl_name")  // Don't create a master playlist per profile

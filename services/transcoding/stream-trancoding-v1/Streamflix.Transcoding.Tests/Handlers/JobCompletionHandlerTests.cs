@@ -74,10 +74,12 @@ namespace Streamflix.Transcoding.Tests.Handlers
                 .ReturnsAsync(jobs);
 
             _mockTranscodingService.Setup(s => s.GenerateTranscodedEventAsync(jobId))
-                .ReturnsAsync(transcodedEvent);
-
-            _mockPublishEndpoint.Setup(p => p.Publish(It.IsAny<VideoTranscoded>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(transcodedEvent);            _mockPublishEndpoint.Setup(p => p.Publish(It.IsAny<VideoTranscoded>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
+                
+            // Setup repository to return the job
+            _mockRepository.Setup(r => r.GetJobByIdAsync(jobId))
+                .ReturnsAsync(completedJob);
 
             // Update job with correct status
             _mockRepository.Setup(r => r.UpdateJobAsync(It.IsAny<TranscodingJob>()))
@@ -184,6 +186,10 @@ namespace Streamflix.Transcoding.Tests.Handlers
 
             _mockRepository.Setup(r => r.GetJobsByStatusAsync(TranscodingJobStatus.Completed, It.IsAny<int>()))
                 .ReturnsAsync(jobs);
+                
+            // Add the GetJobByIdAsync setup for the test method to work
+            _mockRepository.Setup(r => r.GetJobByIdAsync(jobId))
+                .ReturnsAsync(completedJob);
 
             _mockTranscodingService.Setup(s => s.GenerateTranscodedEventAsync(jobId))
                 .ReturnsAsync(transcodedEvent);

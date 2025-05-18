@@ -18,7 +18,7 @@ public class TranscodingJobResponse
 public class TranscodingJobDetailResponse : TranscodingJobResponse
 {
     public string InputFileS3Path { get; set; } = string.Empty;
-    public string? OutputManifestS3Path { get; set; }
+    public new string? OutputManifestS3Path { get; set; } // Using 'new' to explicitly hide the base class property
     public List<RenditionResponse> Renditions { get; set; } = new List<RenditionResponse>();
 }
 
@@ -34,6 +34,16 @@ public class RenditionResponse
 }
 
 public class JobStatistics
+{
+    public int TotalJobs { get; set; }
+    public int PendingJobs { get; set; }
+    public int ProcessingJobs { get; set; }
+    public int CompletedJobs { get; set; }
+    public int FailedJobs { get; set; }
+}
+
+// Renamed from JobStatistics to TranscodingStatistics - both classes exist for backward compatibility
+public class TranscodingStatistics
 {
     public int TotalJobs { get; set; }
     public int PendingJobs { get; set; }

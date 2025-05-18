@@ -256,19 +256,18 @@ public class TranscodingJobsController : ControllerBase
             return StatusCode(500, "An error occurred while aborting the job");
         }
     }
-    
-    /// <summary>
+      /// <summary>
     /// Gets job progress statistics
     /// </summary>
     [HttpGet("statistics")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobStatistics))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TranscodingStatistics))]
     public async Task<IActionResult> GetStatistics()
     {
         try
         {
             var jobs = await _repository.GetJobsAsync();
             
-            var statistics = new JobStatistics
+            var statistics = new TranscodingStatistics
             {
                 TotalJobs = jobs.Count(),
                 PendingJobs = jobs.Count(j => j.Status == TranscodingJobStatus.Received),

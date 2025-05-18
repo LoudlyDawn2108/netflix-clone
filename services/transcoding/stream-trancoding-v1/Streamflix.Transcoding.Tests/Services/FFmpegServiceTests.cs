@@ -23,9 +23,8 @@ namespace Streamflix.Transcoding.Tests.Services
                 FFmpegDownloadFolder = Path.Combine(Path.GetTempPath(), "test-ffmpeg")
             };
         }
-        
-        [Fact]
-        public async Task UpdateJobProgress_ShouldUpdateProgress()
+          [Fact]
+        public void UpdateJobProgress_ShouldUpdateProgress()
         {
             // Arrange
             var optionsMock = new Mock<IOptions<FFmpegOptions>>();
@@ -41,9 +40,8 @@ namespace Streamflix.Transcoding.Tests.Services
             // Assert
             Assert.Equal(0.5, progress);
         }
-        
-        [Fact]
-        public async Task RemoveJobProgress_ShouldRemoveProgressTracking()
+          [Fact]
+        public void RemoveJobProgress_ShouldRemoveProgressTracking()
         {
             // Arrange
             var optionsMock = new Mock<IOptions<FFmpegOptions>>();

@@ -6,7 +6,8 @@ using Streamflix.Transcoding.Infrastructure.Services;
 namespace Streamflix.Transcoding.Infrastructure.Extensions;
 
 public static class FFmpegExtensions
-{    public static IServiceCollection AddFFmpegServices(this IServiceCollection services, IConfiguration configuration)
+{
+    public static IServiceCollection AddFFmpegServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Register FFmpeg options from configuration
         services.Configure<FFmpegOptions>(options =>
@@ -17,8 +18,9 @@ public static class FFmpegExtensions
         // Register FFmpeg service
         services.AddSingleton<FFmpegService>();
         
-        // Register FFmpeg transcoder
+        // Register FFmpeg transcoder as the implementation of ITranscoder
         services.AddSingleton<FFmpegTranscoder>();
+        services.AddSingleton<ITranscoder>(provider => provider.GetRequiredService<FFmpegTranscoder>());
         
         return services;
     }
