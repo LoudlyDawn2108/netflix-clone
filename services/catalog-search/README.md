@@ -1,13 +1,26 @@
 # Catalog & Search Service
 
-Indexes and searches video metadata, supports filtering, pagination, and related video lookups.
+Indexes and searches video metadata, supports filtering, pagination, and content-similar video lookups.
+
+## Technology Stack
+
+-   **Language**: Node.js with TypeScript
+-   **Framework**: Express.js or Fastify for API endpoints
+-   **API Documentation**: OpenAPI/Swagger
+-   **Search Engine**: Elasticsearch/OpenSearch with dedicated indices
+-   **Message Queue**: Kafka for event consumption and publishing
+-   **Caching**: Redis for search results (TTL 30s)
+-   **Indexing**: Bulk Elasticsearch API with retry mechanisms
+-   **Validation**: Joi/Zod for request validation
+-   **Testing**: Jest for unit tests, Testcontainers for E2E tests
+-   **Logging**: Pino for structured JSON logs
 
 ## Responsibilities
 
 -   Subscribe to `VideoCreated` and `VideoTranscoded` events
 -   Index metadata into Elasticsearch/OpenSearch
 -   Provide full-text search with filters (genre, year, tags)
--   Serve related/similar video recommendations based on metadata
+-   Serve content-similar videos based on metadata (not personalized)
 
 ## API Endpoints
 
@@ -15,7 +28,7 @@ Indexes and searches video metadata, supports filtering, pagination, and related
 | ------ | -------------------- | --------------------------------------------------- |
 | GET    | /search              | Full-text search                                    |
 |        |                      | Query params: `q`, `genre`, `year`, `page`, `limit` |
-| GET    | /videos/{id}/related | Fetch related videos                                |
+| GET    | /videos/{id}/similar | Fetch content-similar videos based on metadata      |
 |        |                      | Query params: `limit`                               |
 
 ## Data Store
@@ -29,6 +42,32 @@ Indexes and searches video metadata, supports filtering, pagination, and related
 -   Publishes `CatalogIndexed` on successful indexing
 
 ## Implementation Details
+
+## Service Boundaries & Interactions
+
+### Relationship with Recommendation Service
+
+The Catalog & Search Service operates independently from the Recommendation Service:
+
+-   **Catalog & Search Service** (this service):
+
+    -   Provides content discovery through search and filtering
+    -   Returns similar content based on metadata attributes (genres, tags, cast, etc.)
+    -   Uses Elasticsearch/OpenSearch for text search and metadata-based similarity
+    -   No knowledge of user preferences or viewing history
+    -   Completely user-agnostic
+
+-   **Recommendation Service**:
+    -   Provides personalized recommendations based on user behavior
+    -   Uses ML algorithms to predict user preferences
+    -   Considers viewing history, ratings, and other user interactions
+    -   Personalized to specific users
+
+### Integration Patterns
+
+-   **Event-Based Communication**: Both services subscribe to relevant events without direct coupling
+-   **Independent Data Models**: Each service maintains its own optimized data model
+-   **Gateway Aggregation**: The API Gateway can combine results when needed (e.g., for homepage)
 
 ## Non-Functional Requirements
 
@@ -75,10 +114,44 @@ Indexes and searches video metadata, supports filtering, pagination, and related
 
 ```mermaid
 sequenceDiagram
-    Client->>API_Gateway: HTTPS request
-    API_Gateway->>CatalogService: Search/Related requests
-    CatalogService->>ES: Query/Index
-    CatalogService->>Redis: Cache
+    participant Client
+    participant API_Gateway as API Gateway
+    participant CatalogService as Catalog & Search Service
+    participant RecService as Recommendation Service
+    participant ES as Elasticsearch/OpenSearch
+    participant Redis
+    participant Bus as Message Bus
+
+    %% Search flow
+    Client->>API_Gateway: GET /search?q=action
+    API_Gateway->>CatalogService: Forward search request
+    CatalogService->>Redis: Check cache
+    alt Cache hit
+        Redis->>CatalogService: Return cached results
+    else Cache miss
+        CatalogService->>ES: Execute search query
+        ES->>CatalogService: Return search results
+        CatalogService->>Redis: Cache results (TTL 30s)
+    end
+    CatalogService->>API_Gateway: Return search results
+    API_Gateway->>Client: JSON response
+
+    %% Similar content flow (non-personalized)
+    Client->>API_Gateway: GET /videos/{id}/similar
+    API_Gateway->>CatalogService: Forward request
+    CatalogService->>ES: Find similar by metadata
+    ES->>CatalogService: Return similar videos
+    CatalogService->>API_Gateway: Return similar videos
+    API_Gateway->>Client: JSON response
+
+    %% Indexing flow
     Bus->>CatalogService: VideoCreated/Transcoded
+    CatalogService->>ES: Index document
     CatalogService->>Bus: Publish CatalogIndexed
+
+    %% Personalized recommendation flow (separate service)
+    Client->>API_Gateway: GET /api/v1/recs/{userId}
+    API_Gateway->>RecService: Forward request
+    RecService->>API_Gateway: Return personalized recommendations
+    API_Gateway->>Client: JSON response
 ```
